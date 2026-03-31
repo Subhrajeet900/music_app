@@ -68,6 +68,8 @@ export default function Home() {
 
   const featuredTrack = filteredTracks[0];
   const sideCards = filteredTracks.slice(1, 3);
+  const midnightMix = filteredTracks.slice(3, 10);
+  const hypedList = filteredTracks.slice(10, 20);
 
   const handlePlay = (track: Track, list: Track[]) => {
     playTrackFromList(track, list);
@@ -194,8 +196,60 @@ export default function Home() {
           </div>
         )}
 
-        {/* Section 3 — Hyped Songs List */}
-        {filteredTracks.length > 0 && (
+        {/* Section 3 — The Midnight Drive */}
+        {midnightMix.length > 0 && (
+          <div 
+            className="relative w-full rounded-[32px] overflow-hidden mb-12 group cursor-pointer border border-[#ffffff05] bg-black/40 backdrop-blur-3xl shadow-2xl reveal hover:border-[rgba(239,68,68,0.2)] transition-colors duration-500" 
+            onClick={() => handlePlay(midnightMix[0], midnightMix)}
+          >
+            {/* Dark Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg)] via-[#0d0f14]/90 to-[#1a1325]/60 z-10 pointer-events-none" />
+            
+            {/* Background Image / Blur */}
+            <img src={midnightMix[0]?.cover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.15] select-none blur-xl scale-110 pointer-events-none" />
+            <div className="absolute inset-0 bg-black/50 z-0 pointer-events-none" />
+
+            {/* Content */}
+            <div className="relative z-20 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-10 overflow-hidden">
+               {/* Left text */}
+               <div className="flex flex-col items-start gap-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(255,255,255,0.02)] text-red-500 text-[10px] font-bold uppercase tracking-widest rounded-full border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.15)] backdrop-blur-md">
+                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse-slow shadow-[0_0_10px_red]" />
+                    NIGHT RIDER MIX
+                  </div>
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-sans font-black text-white italic tracking-tighter drop-shadow-2xl">The Midnight Drive</h2>
+                  <p className="text-[var(--t2)] font-mono text-sm md:text-[15px] max-w-md leading-relaxed">
+                    Dark asphalt. Neon lights. A curated underground mix for the endless highway.
+                  </p>
+                  <button className="mt-4 flex items-center gap-3 px-8 py-3.5 bg-red-600 text-white rounded-full font-bold text-[15px] hover:bg-red-500 transition-colors shadow-[0_0_25px_rgba(239,68,68,0.4)] active:scale-95 group/btn border border-red-400/20">
+                     <Play size={18} fill="currentColor" className="transform group-hover/btn:translate-x-1 transition-transform" /> Start Engine
+                  </button>
+               </div>
+
+               {/* Right Deck of Covers */}
+               <div className="relative w-full md:w-[350px] h-[160px] md:h-[220px] flex items-center justify-end transform md:scale-110 mt-6 md:mt-0 pointer-events-none">
+                  {midnightMix.slice(0, 5).map((track, i) => (
+                     <div 
+                       key={'mix-'+track.id} 
+                       className="absolute w-[120px] h-[120px] md:w-[160px] md:h-[160px] rounded-[16px] shadow-[0_20px_40px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden transform transition-all duration-700 ease-out group-hover:translate-x-[-20px] group-hover:rotate-0"
+                       style={{ 
+                         right: `${i * 35}px`, 
+                         zIndex: 50 - i, 
+                         transform: `rotate(${i * 6}deg) scale(${1 - i * 0.08})`,
+                         filter: `brightness(${1 - i * 0.2}) contrast(1.1)`
+                       }}
+                     >
+                        <img src={track.cover} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent mix-blend-multiply" />
+                     </div>
+                  ))}
+               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Section 4 — Hyped Songs List */}
+        {hypedList.length > 0 && (
           <div ref={trackListReveal.ref} className={`mb-8 reveal ${trackListReveal.isVisible ? 'revealed' : ''}`}>
              
             <div className="flex items-center justify-between mb-6 px-1">
@@ -211,7 +265,7 @@ export default function Home() {
               <span></span>
             </div>
 
-            {filteredTracks.slice(0, 10).map((track, index) => {
+            {hypedList.map((track, index) => {
               const liked = likedSongs.includes(track.id);
               const isCurrentlyPlaying = currentTrack?.id === track.id;
               
@@ -234,7 +288,7 @@ export default function Home() {
                   
                   <div className="w-[40px] h-[40px] md:w-[48px] md:h-[48px] rounded-lg overflow-hidden relative shadow-md flex-shrink-0 bg-[var(--s2)]">
                     <img src={track.cover} alt={track.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-10">
+                    <div className="absolute inset-0 bg-black/50 opacity-100 md:opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-10">
                       <Play size={16} fill="white" className="text-white ml-0.5" />
                     </div>
                   </div>
@@ -251,11 +305,11 @@ export default function Home() {
                   <div className="flex items-center justify-end gap-2 pr-1">
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleLike(track.id); }}
-                      className={`flex items-center justify-center transition-all ${liked ? 'text-[var(--acc)] animate-heart-pop' : 'text-[var(--t3)] opacity-0 group-hover:opacity-100 hover:text-[var(--acc-soft)]'}`}
+                      className={`flex items-center justify-center transition-all ${liked ? 'text-[var(--acc)] animate-heart-pop' : 'text-[var(--t3)] opacity-100 md:opacity-0 group-hover:opacity-100 hover:text-[var(--acc-soft)]'}`}
                     >
                       <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
                     </button>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                       <TrackMenu track={track} />
                     </div>
                   </div>

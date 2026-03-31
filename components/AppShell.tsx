@@ -38,7 +38,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <YouTubePlayer />
-      <div className="flex-1 flex overflow-hidden pb-[72px] lg:pb-[72px]">
+      <div className="flex-1 flex overflow-hidden pb-[130px] lg:pb-[90px]">
         <Sidebar />
         <main className="flex-1 flex flex-col bg-transparent overflow-hidden relative font-sans">
           <TopBar />

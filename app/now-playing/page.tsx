@@ -218,7 +218,7 @@ export default function NowPlayingPage() {
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
             <div className="absolute left-0 top-0 bottom-0 bg-[#e2a93b] rounded-full pointer-events-none transition-all" style={{ width: `${localProgress}%` }} />
-            <div className="absolute w-3 h-3 bg-[#e6edf3] rounded-full opacity-0 group-hover:opacity-100 shadow-md pointer-events-none -ml-1.5 top-1/2 -translate-y-1/2" style={{ left: `${localProgress}%` }} />
+            <div className="absolute w-3 h-3 bg-[#e6edf3] rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 shadow-md pointer-events-none -ml-1.5 top-1/2 -translate-y-1/2" style={{ left: `${localProgress}%` }} />
           </div>
           <div className="flex justify-between mt-1.5 text-[11px] text-[#7d8590]">
             <span>{currentTrack.duration > 0 ? formatTime(localProgress, currentTrack.duration) : formatDuration(Math.floor(currentTime))}</span>
@@ -261,7 +261,7 @@ export default function NowPlayingPage() {
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
             <div className="absolute left-0 top-0 bottom-0 bg-[#e6edf3] group-hover:bg-[#e2a93b] rounded-full pointer-events-none transition-colors" style={{ width: `${volume * 100}%` }} />
-            <div className="absolute w-3 h-3 bg-[#e6edf3] rounded-full opacity-0 group-hover:opacity-100 shadow-md pointer-events-none -ml-1.5 top-1/2 -translate-y-1/2" style={{ left: `${volume * 100}%` }} />
+            <div className="absolute w-3 h-3 bg-[#e6edf3] rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 shadow-md pointer-events-none -ml-1.5 top-1/2 -translate-y-1/2" style={{ left: `${volume * 100}%` }} />
           </div>
         </div>
 

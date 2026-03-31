@@ -108,7 +108,7 @@ export function MiniPlayer() {
               className="h-full bg-[var(--acc)] rounded-full relative transition-[width] duration-100"
               style={{ width: `${progress}%` }}
             >
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md" />
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shadow-md" />
             </div>
           </div>
           <span className="text-[10px] text-[var(--t2)] font-mono tabular-nums w-10">{durationFormatted}</span>

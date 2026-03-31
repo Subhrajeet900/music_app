@@ -85,14 +85,14 @@ export default function SearchPage() {
                   <span className={`text-right text-sm ${playing ? 'text-[#e2a93b]' : 'text-[#484f58]'}`}>{playing ? '♪' : index + 1}</span>
                   <div className="w-10 h-10 rounded-lg overflow-hidden relative bg-[#1c2333]">
                     <img src={track.cover} alt={track.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Play size={14} fill="white" className="text-white ml-0.5" /></div>
+                    <div className="absolute inset-0 bg-black/50 opacity-100 md:opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Play size={14} fill="white" className="text-white ml-0.5" /></div>
                   </div>
                   <div className="min-w-0"><p className={`text-sm font-medium truncate ${playing ? 'text-[#e2a93b]' : 'text-[#e6edf3]'}`}>{track.title}</p><p className="text-xs text-[#7d8590] truncate md:hidden">{track.artist}</p></div>
                   <span className="text-sm text-[#7d8590] truncate hidden md:block">{track.artist}</span>
                   <span className="text-sm text-[#7d8590] text-right tabular-nums">{track.duration > 0 ? formatDuration(track.duration) : '--:--'}</span>
-                  <button onClick={(e) => { e.stopPropagation(); toggleLike(track.id); }} className={`flex items-center justify-center transition-all ${liked ? 'text-[#e2a93b]' : 'text-[#484f58] opacity-0 group-hover:opacity-100'}`}><Heart size={14} fill={liked ? 'currentColor' : 'none'} /></button>
+                  <button onClick={(e) => { e.stopPropagation(); toggleLike(track.id); }} className={`flex items-center justify-center transition-all ${liked ? 'text-[#e2a93b]' : 'text-[#484f58] opacity-100 md:opacity-0 group-hover:opacity-100'}`}><Heart size={14} fill={liked ? 'currentColor' : 'none'} /></button>
                   <div className="relative">
-                    <button onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === track.id ? null : track.id); }} className="flex items-center justify-center text-[#484f58] opacity-0 group-hover:opacity-100 hover:text-[#e6edf3] transition-all"><MoreHorizontal size={14} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === track.id ? null : track.id); }} className="flex items-center justify-center text-[#484f58] opacity-100 md:opacity-0 group-hover:opacity-100 hover:text-[#e6edf3] transition-all"><MoreHorizontal size={14} /></button>
                     {menuOpen === track.id && (
                       <div className="absolute right-0 top-full mt-1 w-44 bg-[#1c2333] rounded-xl shadow-2xl border border-white/[0.06] py-1 z-50 animate-[fade-in_0.15s_ease-out]" onClick={(e) => e.stopPropagation()}>
                         <button onClick={() => { usePlayerStore.getState().addToQueue(track); setMenuOpen(null); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#7d8590] hover:text-[#e6edf3] hover:bg-white/[0.04]"><ListPlus size={14} /> Add to Queue</button>

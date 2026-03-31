@@ -43,7 +43,7 @@ export default function LibraryPage() {
             <p className="text-[#7d8590] text-sm">{likedTracks.length} song{likedTracks.length !== 1 ? 's' : ''}</p>
           </div>
         </div>
-        <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all">
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all">
           <div className="w-12 h-12 bg-[#e2a93b] rounded-full flex items-center justify-center shadow-xl hover:scale-105">
             <Play size={20} fill="currentColor" className="text-[#0d1117] ml-0.5" />
           </div>
@@ -68,7 +68,7 @@ export default function LibraryPage() {
                   <p className="text-[#7d8590] text-xs truncate">{track.artist}</p>
                 </div>
                 <span className="text-xs text-[#484f58]">{track.duration > 0 ? formatDuration(track.duration) : ''}</span>
-                <div className="opacity-0 group-hover:opacity-100 transition-all">
+                <div className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-all">
                   <button className="w-8 h-8 bg-[#e2a93b] rounded-full flex items-center justify-center text-[#0d1117] shadow-lg hover:scale-105">
                     <Play size={12} fill="currentColor" className="ml-0.5" />
                   </button>
@@ -95,7 +95,7 @@ export default function LibraryPage() {
                   <Music size={40} className="text-[#484f58]" />
                 </div>
               )}
-              <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all">
+              <div className="absolute bottom-2 right-2 opacity-100 md:opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all">
                 <div className="w-10 h-10 bg-[#e2a93b] rounded-full flex items-center justify-center shadow-xl hover:scale-105">
                   <Play size={16} fill="currentColor" className="text-[#0d1117] ml-0.5" />
                 </div>

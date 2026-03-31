@@ -132,7 +132,7 @@ export default function PlaylistPage() {
 
                   <div className="w-10 h-10 rounded overflow-hidden relative bg-[#1b1e22]">
                     <img src={track.cover} alt={track.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <div className="absolute inset-0 bg-black/50 opacity-100 md:opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                       <Play size={14} fill="white" className="text-white ml-0.5" />
                     </div>
                   </div>
@@ -148,7 +148,7 @@ export default function PlaylistPage() {
 
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleLike(track.id); }}
-                    className={`flex items-center justify-center transition-all ${liked ? 'text-[var(--acc)] animate-heart-pop' : 'text-[#4a5058] opacity-0 group-hover:opacity-100 hover:text-[var(--acc-soft)]'}`}
+                    className={`flex items-center justify-center transition-all ${liked ? 'text-[var(--acc)] animate-heart-pop' : 'text-[#4a5058] opacity-100 md:opacity-0 group-hover:opacity-100 hover:text-[var(--acc-soft)]'}`}
                   >
                     <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
                   </button>

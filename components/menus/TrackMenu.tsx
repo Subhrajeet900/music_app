@@ -50,7 +50,7 @@ export function TrackMenu({ track, playlistId }: Props) {
     <div className="relative" ref={ref}>
       <button
         onClick={(e) => { e.stopPropagation(); setOpen(!open); setShowPlaylists(false); }}
-        className="flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[#1b1e22] border border-[#262a2f] text-[#9098a0] opacity-0 group-hover:opacity-100 hover:text-[#f0f2f4] transition-all hover:border-[#42474e]"
+        className="flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[#1b1e22] border border-[#262a2f] text-[#9098a0] opacity-100 md:opacity-0 group-hover:opacity-100 hover:text-[#f0f2f4] transition-all hover:border-[#42474e]"
       >
         <MoreHorizontal size={14} />
       </button>
