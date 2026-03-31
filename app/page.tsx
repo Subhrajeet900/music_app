@@ -38,8 +38,8 @@ export default function Home() {
     async function loadMusic() {
       try {
         setLoading(true);
-        // Fetch 20 trending tracks
-        const results = await getTrendingMusic(20);
+        // Fetch 40 tracks for better variety
+        const results = await getTrendingMusic(40);
         
         if (!cancelled) {
           // Assign random moods
@@ -67,9 +67,9 @@ export default function Home() {
     : allTracks.filter(t => t.mood === activeMood);
 
   const featuredTrack = filteredTracks[0];
-  const sideCards = filteredTracks.slice(1, 3);
-  const midnightMix = filteredTracks.slice(3, 10);
-  const hypedList = filteredTracks.slice(10, 20);
+  const topCharts = filteredTracks.slice(1, 11);
+  const vibeCheck = filteredTracks.slice(11, 21);
+  const hypedList = filteredTracks.slice(21);
 
   const handlePlay = (track: Track, list: Track[]) => {
     playTrackFromList(track, list);
@@ -182,14 +182,53 @@ export default function Home() {
           </div>
         )}
 
-        {/* Section 3 — High Energy Grid */}
+        {/* Section 3 — Global Top 10 Charts */}
+        <div className="mb-14 reveal-left revealed">
+          <h2 className="text-xl font-black text-white tracking-widest uppercase mb-8 flex items-center gap-3 ml-1">
+            <span className="w-6 h-[2px] bg-red-500 rounded-full shadow-[0_0_10px_red]" />
+            Global Charts
+          </h2>
+          <div className="flex items-center gap-10 overflow-x-auto scrollbar-hide pb-10 px-1 snap-x">
+             {topCharts.map((track, i) => (
+                <div 
+                  key={'chart-'+track.id} 
+                  className="relative flex-shrink-0 w-[180px] group cursor-pointer snap-start"
+                  onClick={() => handlePlay(track, filteredTracks)}
+                >
+                   {/* Large Rank Number background */}
+                   <div className="absolute left-[-20px] top-[-30px] text-[120px] font-black text-white/[0.04] leading-none pointer-events-none select-none z-0 italic transition-colors group-hover:text-red-500/10">
+                      {i + 1}
+                   </div>
+
+                   <div className="relative z-10">
+                      <div className="aspect-square rounded-[32px] overflow-hidden mb-4 border border-white/5 bg-[var(--s2)] shadow-2xl transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-3">
+                         <img src={track.cover} alt="" className="w-full h-full object-cover" />
+                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black">
+                               <Play size={20} fill="currentColor" className="ml-1" />
+                            </div>
+                         </div>
+                      </div>
+                      <h3 className="text-[#f0f2f4] text-sm font-bold truncate mb-1 group-hover:text-red-500 transition-colors">
+                        {track.title}
+                      </h3>
+                      <p className="text-[#9098A0] text-[11px] font-black uppercase tracking-widest truncate opacity-60">
+                        {track.artist}
+                      </p>
+                   </div>
+                </div>
+             ))}
+          </div>
+        </div>
+
+        {/* Section 4 — Vibe Check Grid */}
         <div className="mb-14">
           <h2 className="text-xl font-black text-white tracking-widest uppercase mb-6 flex items-center gap-3 ml-1">
             <span className="w-6 h-[2px] bg-[var(--acc)] rounded-full" />
             Vibe Check
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {filteredTracks.slice(1, 6).map((track, i) => (
+            {vibeCheck.map((track, i) => (
               <div
                 key={track.id}
                 className="group cursor-pointer reveal"
