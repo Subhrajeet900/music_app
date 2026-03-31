@@ -1,18 +1,52 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-    <!-- Dark Background -->
-    <rect width="512" height="512" fill="#07090b" rx="112" />
+  <defs>
+    <!-- Deep midnight space background for the app -->
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#0a0518"/>
+      <stop offset="100%" stop-color="#030108"/>
+    </radialGradient>
     
-    <!-- Outer Glow / Ring -->
-    <circle cx="256" cy="256" r="200" fill="none" stroke="rgba(200,205,212,0.06)" stroke-width="30" />
-    <circle cx="256" cy="256" r="160" fill="none" stroke="rgba(200,205,212,0.12)" stroke-width="10" />
+    <!-- Neon Magenta/Pink smoky blur -->
+    <radialGradient id="smoke1" cx="30%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#ff007f" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#ff007f" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Electric Blue smoky blur -->
+    <radialGradient id="smoke2" cx="70%" cy="80%" r="65%">
+      <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#00f0ff" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Deep Purple center accent -->
+    <radialGradient id="smoke3" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8a2be2" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#8a2be2" stop-opacity="0"/>
+    </radialGradient>
+    
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="55" />
+    </filter>
+  </defs>
 
-    <!-- Headphone & User Icon Path -->
-    <g transform="translate(146, 140) scale(9)" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <!-- Person Head/Shoulders (dimmed) -->
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" stroke="#c8cdd4" opacity="0.4" stroke-width="2"/>
-      <circle cx="12" cy="8" r="4" stroke="#c8cdd4" opacity="0.4" stroke-width="2"/>
-      
-      <!-- Headphones over the head (bright) -->
-      <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" stroke="#f0f2f4" stroke-width="2.5" />
-    </g>
+  <!-- Base background (no rx for perfect maskable OS clipping) -->
+  <rect width="512" height="512" fill="url(#bg)" />
+  
+  <!-- Smoky overlay layer with heavy blur to look like fluid/smoke -->
+  <g filter="url(#blur)">
+    <!-- Swirling smoke spots -->
+    <circle cx="150" cy="150" r="220" fill="url(#smoke1)"/>
+    <circle cx="380" cy="380" r="240" fill="url(#smoke2)"/>
+    <circle cx="256" cy="256" r="180" fill="url(#smoke3)"/>
+    
+    <!-- A glowing curved wave to add fluid texture -->
+    <path d="M 50 400 C 150 150, 350 450, 480 50" fill="none" stroke="#fff" stroke-width="45" stroke-linecap="round" opacity="0.4"/>
+  </g>
+  
+  <!-- Sleek White Headphone Icon to stand out against the smoke -->
+  <g transform="translate(136, 136) scale(10)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" stroke="#ffffff" stroke-width="1.8" />
+    <!-- Glowing sound wave inside -->
+    <path d="M9 11v6 M12 9v10 M15 11v6" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
 </svg>
