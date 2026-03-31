@@ -48,7 +48,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-4 relative overflow-hidden font-sans">
       {/* Ambient glow orbs */}
       <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-[var(--acc)] opacity-[0.04] rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-[var(--acc)] opacity-[0.03] rounded-full blur-[100px] pointer-events-none" />

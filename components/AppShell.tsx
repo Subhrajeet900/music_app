@@ -22,7 +22,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [checkSession]);
 
   if (!checked) {
-    return <div className="min-h-screen bg-[var(--bg)]" />;
+    return <div className="min-h-screen bg-transparent" />;
   }
 
   const isAuthPage = AUTH_ROUTES.includes(pathname);
@@ -40,7 +40,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <YouTubePlayer />
       <div className="flex-1 flex overflow-hidden pb-[72px] lg:pb-[72px]">
         <Sidebar />
-        <main className="flex-1 flex flex-col bg-[var(--s1)] overflow-hidden relative font-sans">
+        <main className="flex-1 flex flex-col bg-transparent overflow-hidden relative font-sans">
           <TopBar />
           <div className="flex-1 overflow-y-auto w-full relative">
             {children}
@@ -60,5 +60,5 @@ function RedirectToLogin() {
   useEffect(() => {
     router.push('/login');
   }, [router]);
-  return <div className="min-h-screen bg-[var(--bg)]" />;
+  return <div className="min-h-screen bg-transparent" />;
 }

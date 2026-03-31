@@ -16,13 +16,14 @@ export default function NowPlayingPage() {
     shuffle, toggleShuffle, repeatMode, cycleRepeat,
     likedSongs, toggleLike, queue, showQueue,
     setShowQueue, playTrackFromList, setCurrentTime,
-    currentTime, clearQueue, seekTo
+    currentTime, clearQueue, seekTo, playlists, addTrackToPlaylist
   } = usePlayerStore();
 
   const [localProgress, setLocalProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showPlaylists, setShowPlaylists] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -117,17 +118,57 @@ export default function NowPlayingPage() {
           </button>
           <span className="text-xs text-[#7d8590] uppercase tracking-widest font-medium">Now Playing</span>
           <div className="relative">
-            <button onClick={() => setShowMenu(!showMenu)} className="text-[#7d8590] hover:text-[#e6edf3] transition-colors">
+            <button onClick={() => { setShowMenu(!showMenu); setShowPlaylists(false); }} className="text-[#7d8590] hover:text-[#e6edf3] transition-colors">
               <MoreHorizontal size={24} />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-full mt-2 w-44 bg-[#1c2333] rounded-xl shadow-2xl border border-white/[0.06] py-1 z-50 animate-[fade-in_0.15s_ease-out]">
-                <button onClick={() => { setShowMenu(false); setShowShareModal(true); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#7d8590] hover:text-[#e6edf3] hover:bg-white/[0.04]">
-                  <Share2 size={14} /> Share
-                </button>
-                <button onClick={() => { usePlayerStore.getState().addToQueue(currentTrack); setShowMenu(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#7d8590] hover:text-[#e6edf3] hover:bg-white/[0.04]">
-                  <ListMusic size={14} /> Add to Queue
-                </button>
+              <div className="absolute right-0 top-full mt-2 w-48 bg-[#1c2333] rounded-xl shadow-2xl border border-white/[0.06] py-1.5 z-50 animate-[fade-in_0.15s_ease-out]">
+                {!showPlaylists ? (
+                  <>
+                    <button onClick={() => { setShowPlaylists(true); }} className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-[#7d8590] hover:text-[#e6edf3] hover:bg-white/[0.04]">
+                      <div className="flex items-center gap-2.5">
+                        <ListMusic size={14} /> Add to Playlist
+                      </div>
+                      <span>›</span>
+                    </button>
+                    <button onClick={() => { usePlayerStore.getState().addToQueue(currentTrack); setShowMenu(false); }} className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#7d8590] hover:text-[#e6edf3] hover:bg-white/[0.04]">
+                      <ListMusic size={14} /> Add to Queue
+                    </button>
+                    <button onClick={() => { setShowMenu(false); setShowShareModal(true); }} className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#7d8590] hover:text-[#e6edf3] hover:bg-white/[0.04]">
+                      <Share2 size={14} /> Share
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button 
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-[13px] text-[#9098A0] hover:text-[#f0f2f4] hover:bg-white/[0.04] transition-colors mb-1 border-b border-white/[0.06]"
+                      onClick={(e) => { e.stopPropagation(); setShowPlaylists(false); }}
+                    >
+                      ‹ Back
+                    </button>
+                    {playlists.length === 0 ? (
+                      <div className="px-4 py-3 text-[12px] text-[#484f58] text-center">No playlists yet</div>
+                    ) : (
+                      <div className="max-h-48 overflow-y-auto scrollbar-hide">
+                        {playlists.map(p => (
+                          <button 
+                            key={p.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addTrackToPlaylist(p.id, currentTrack);
+                              setShowMenu(false);
+                              setShowPlaylists(false);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#9098A0] hover:text-[#f0f2f4] hover:bg-white/[0.04] transition-colors truncate"
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: p.color }} />
+                            <span className="truncate">{p.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </div>

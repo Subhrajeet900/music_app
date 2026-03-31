@@ -15,7 +15,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="h-[56px] bg-[var(--bg)]/95 backdrop-blur-md border-t border-[var(--acc-glow)] flex items-center justify-around px-2 lg:hidden w-full font-sans">
+    <nav className="h-[56px] bg-[var(--bg)]/50 backdrop-blur-2xl border-t border-[var(--acc-glow)] flex items-center justify-around px-2 lg:hidden w-full font-sans">
       {tabs.map((tab) => {
         const active = tab.href === '/' ? pathname === '/' : pathname?.startsWith(tab.href);
         return (

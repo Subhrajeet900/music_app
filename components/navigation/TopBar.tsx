@@ -40,7 +40,7 @@ export function TopBar() {
   const initial = (username || 'U')[0].toUpperCase();
 
   return (
-    <header className="sticky top-0 z-40 bg-[var(--s1)]/90 backdrop-blur-md px-5 lg:px-8 py-4 flex items-center justify-between gap-4 border-b border-[var(--acc-glow)] font-sans">
+    <header className="sticky top-0 z-40 bg-[var(--bg)]/50 backdrop-blur-2xl px-5 lg:px-8 py-4 flex items-center justify-between gap-4 border-b border-[var(--acc-glow)] font-sans">
       {/* Left: Greeting */}
       <div className="flex-1 min-w-0">
         <p className="text-[var(--t2)] text-[11px] font-bold uppercase tracking-widest">{greeting}</p>
