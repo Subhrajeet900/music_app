@@ -7,7 +7,16 @@ interface YouTubePlayerRef {
   seekTo: (seconds: number) => void;
 }
 
+export interface Playlist {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  tracks: Track[];
+}
+
 interface PlayerStore {
+  activeEmail: string | null;
   currentTrack: Track | null;
   queue: Track[];
   isPlaying: boolean;
@@ -19,10 +28,12 @@ interface PlayerStore {
   repeatMode: RepeatMode;
   likedSongs: string[];
   likedTracksData: Track[];
+  playlists: Playlist[];
   showLyrics: boolean;
   showQueue: boolean;
   youtubePlayerRef: YouTubePlayerRef | null;
 
+  initUserData: (email: string | null) => void;
   setTrack: (track: Track) => void;
   setQueue: (tracks: Track[]) => void;
   addToQueue: (track: Track) => void;
@@ -48,35 +59,20 @@ interface PlayerStore {
   seekTo: (seconds: number) => void;
   saveLikedTrackData: (track: Track) => void;
   removeLikedTrackData: (id: string) => void;
+
+  createPlaylist: (name: string, description: string, color: string) => void;
+  addTrackToPlaylist: (playlistId: string, track: Track) => void;
+  removeTrackFromPlaylist: (playlistId: string, trackId: string) => void;
 }
 
-const loadLikedSongs = (): string[] => {
-  if (typeof window === 'undefined') return [];
-  try {
-    const stored = localStorage.getItem('likedSongs');
-    return stored ? JSON.parse(stored) : [];
-  } catch { return []; }
-};
-
-const saveLikedSongs = (ids: string[]) => {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('likedSongs', JSON.stringify(ids));
-};
-
-const loadLikedTracksData = (): Track[] => {
-  if (typeof window === 'undefined') return [];
-  try {
-    const stored = localStorage.getItem('likedTracksData');
-    return stored ? JSON.parse(stored) : [];
-  } catch { return []; }
-};
-
-const saveLikedTracksData = (tracks: Track[]) => {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('likedTracksData', JSON.stringify(tracks));
+// Helper to save to user-bound local storage
+const saveUserBoundData = (email: string, key: string, data: any) => {
+  if (typeof window === 'undefined' || !email) return;
+  localStorage.setItem(`moodtunes_${key}_${email}`, JSON.stringify(data));
 };
 
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
+  activeEmail: null,
   currentTrack: null,
   queue: [],
   isPlaying: false,
@@ -86,30 +82,68 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   currentTime: 0,
   shuffle: false,
   repeatMode: 'off',
-  likedSongs: loadLikedSongs(),
-  likedTracksData: loadLikedTracksData(),
+  likedSongs: [],
+  likedTracksData: [],
+  playlists: [],
   showLyrics: false,
   showQueue: false,
   youtubePlayerRef: null,
+
+  initUserData: (email: string | null) => {
+    if (!email || typeof window === 'undefined') {
+      set({ activeEmail: null, likedSongs: [], likedTracksData: [], playlists: [], queue: [] });
+      return;
+    }
+
+    try {
+      const storedQueue = localStorage.getItem(`moodtunes_queue_${email}`);
+      const storedSongs = localStorage.getItem(`moodtunes_likedSongs_${email}`);
+      const storedData = localStorage.getItem(`moodtunes_likedTracksData_${email}`);
+      const storedPlaylists = localStorage.getItem(`moodtunes_playlists_${email}`);
+
+      set({
+        activeEmail: email,
+        queue: storedQueue ? JSON.parse(storedQueue) : [],
+        likedSongs: storedSongs ? JSON.parse(storedSongs) : [],
+        likedTracksData: storedData ? JSON.parse(storedData) : [],
+        playlists: storedPlaylists ? JSON.parse(storedPlaylists) : []
+      });
+    } catch {
+      set({ activeEmail: email, likedSongs: [], likedTracksData: [], playlists: [], queue: [] });
+    }
+  },
 
   setTrack: (track) => {
     set({ currentTrack: track, isPlaying: true, progress: 0, currentTime: 0 });
   },
 
-  setQueue: (tracks) => set({ queue: tracks }),
+  setQueue: (tracks) => {
+    const { activeEmail } = get();
+    set({ queue: tracks });
+    if (activeEmail) saveUserBoundData(activeEmail, 'queue', tracks);
+  },
 
   addToQueue: (track) => {
-    const { queue } = get();
+    const { queue, activeEmail } = get();
     if (!queue.find(t => t.id === track.id)) {
-      set({ queue: [...queue, track] });
+      const newQueue = [...queue, track];
+      set({ queue: newQueue });
+      if (activeEmail) saveUserBoundData(activeEmail, 'queue', newQueue);
     }
   },
 
   removeFromQueue: (id) => {
-    set({ queue: get().queue.filter(t => t.id !== id) });
+    const { queue, activeEmail } = get();
+    const newQueue = queue.filter(t => t.id !== id);
+    set({ queue: newQueue });
+    if (activeEmail) saveUserBoundData(activeEmail, 'queue', newQueue);
   },
 
-  clearQueue: () => set({ queue: [] }),
+  clearQueue: () => {
+    set({ queue: [] });
+    const { activeEmail } = get();
+    if (activeEmail) saveUserBoundData(activeEmail, 'queue', []);
+  },
 
   togglePlay: () => {
     const { isPlaying, currentTrack } = get();
@@ -118,13 +152,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   },
 
   nextTrack: () => {
-    const { currentTrack, queue, shuffle, repeatMode } = get();
+    const { currentTrack, queue, shuffle, repeatMode, youtubePlayerRef } = get();
     if (!currentTrack || queue.length === 0) return;
 
     if (repeatMode === 'one') {
       set({ progress: 0, currentTime: 0, isPlaying: true });
-      const ref = get().youtubePlayerRef;
-      if (ref) ref.seekTo(0);
+      if (youtubePlayerRef) youtubePlayerRef.seekTo(0);
       return;
     }
 
@@ -147,14 +180,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   },
 
   prevTrack: () => {
-    const { currentTrack, queue, currentTime } = get();
+    const { currentTrack, queue, currentTime, youtubePlayerRef } = get();
     if (!currentTrack || queue.length === 0) return;
 
-    // If more than 3 seconds into the song, restart it
     if (currentTime > 3) {
       set({ progress: 0, currentTime: 0, isPlaying: true });
-      const ref = get().youtubePlayerRef;
-      if (ref) ref.seekTo(0);
+      if (youtubePlayerRef) youtubePlayerRef.seekTo(0);
       return;
     }
 
@@ -187,18 +218,18 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   },
 
   toggleLike: (id) => {
-    const { likedSongs, likedTracksData, currentTrack, queue } = get();
+    const { likedSongs, likedTracksData, currentTrack, queue, activeEmail } = get();
     const isCurrentlyLiked = likedSongs.includes(id);
 
     if (isCurrentlyLiked) {
-      // Unlike
       const updatedIds = likedSongs.filter(s => s !== id);
       const updatedData = likedTracksData.filter(t => t.id !== id);
-      saveLikedSongs(updatedIds);
-      saveLikedTracksData(updatedData);
       set({ likedSongs: updatedIds, likedTracksData: updatedData });
+      if (activeEmail) {
+        saveUserBoundData(activeEmail, 'likedSongs', updatedIds);
+        saveUserBoundData(activeEmail, 'likedTracksData', updatedData);
+      }
     } else {
-      // Like — also save the track data
       const updatedIds = [...likedSongs, id];
       const trackToSave = currentTrack?.id === id
         ? currentTrack
@@ -209,9 +240,11 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         updatedData = [...likedTracksData, trackToSave];
       }
 
-      saveLikedSongs(updatedIds);
-      saveLikedTracksData(updatedData);
       set({ likedSongs: updatedIds, likedTracksData: updatedData });
+      if (activeEmail) {
+        saveUserBoundData(activeEmail, 'likedSongs', updatedIds);
+        saveUserBoundData(activeEmail, 'likedTracksData', updatedData);
+      }
     }
   },
 
@@ -221,6 +254,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   setShowQueue: (show) => set({ showQueue: show, showLyrics: show ? false : get().showLyrics }),
 
   playTrackFromList: (track, list) => {
+    const { activeEmail } = get();
     set({
       currentTrack: track,
       queue: list,
@@ -228,6 +262,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       progress: 0,
       currentTime: 0,
     });
+    if (activeEmail) saveUserBoundData(activeEmail, 'queue', list);
   },
 
   setTrackDuration: (duration) => {
@@ -247,17 +282,65 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   },
 
   saveLikedTrackData: (track) => {
-    const { likedTracksData } = get();
+    const { likedTracksData, activeEmail } = get();
     if (!likedTracksData.find(t => t.id === track.id)) {
       const updated = [...likedTracksData, track];
-      saveLikedTracksData(updated);
       set({ likedTracksData: updated });
+      if (activeEmail) saveUserBoundData(activeEmail, 'likedTracksData', updated);
     }
   },
 
   removeLikedTrackData: (id) => {
-    const updated = get().likedTracksData.filter(t => t.id !== id);
-    saveLikedTracksData(updated);
+    const { likedTracksData, activeEmail } = get();
+    const updated = likedTracksData.filter(t => t.id !== id);
     set({ likedTracksData: updated });
+    if (activeEmail) saveUserBoundData(activeEmail, 'likedTracksData', updated);
   },
+
+  createPlaylist: (name, description, color) => {
+    const { playlists, activeEmail } = get();
+    const id = 'pl_' + Date.now() + Math.random().toString(36).substring(2, 9);
+    const newPlaylist = { id, name, description, color, tracks: [] };
+    const updated = [...playlists, newPlaylist];
+    
+    set({ playlists: updated });
+    if (activeEmail) saveUserBoundData(activeEmail, 'playlists', updated);
+  },
+
+  addTrackToPlaylist: (playlistId, track) => {
+    const { playlists, activeEmail } = get();
+    const updated = playlists.map(p => {
+      if (p.id === playlistId) {
+        if (p.tracks.find(t => t.id === track.id)) return p; // already in
+        return { ...p, tracks: [...p.tracks, track] };
+      }
+      return p;
+    });
+
+    set({ playlists: updated });
+    if (activeEmail) saveUserBoundData(activeEmail, 'playlists', updated);
+  },
+
+  removeTrackFromPlaylist: (playlistId, trackId) => {
+    const { playlists, activeEmail } = get();
+    const updated = playlists.map(p => {
+      if (p.id === playlistId) {
+        return { ...p, tracks: p.tracks.filter(t => t.id !== trackId) };
+      }
+      return p;
+    });
+
+    set({ playlists: updated });
+    if (activeEmail) saveUserBoundData(activeEmail, 'playlists', updated);
+  }
 }));
+
+// Setup global event listeners for auth changes
+if (typeof window !== 'undefined') {
+  window.addEventListener('moodtunes_user_logged_in', (e: any) => {
+    usePlayerStore.getState().initUserData(e.detail.email);
+  });
+  window.addEventListener('moodtunes_user_logged_out', () => {
+    usePlayerStore.getState().initUserData(null);
+  });
+}

@@ -15,17 +15,17 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="h-[56px] bg-[#0d1117]/95 backdrop-blur-md border-t border-white/[0.06] flex items-center justify-around px-2 lg:hidden w-full">
+    <nav className="h-[56px] bg-[var(--bg)]/95 backdrop-blur-md border-t border-[var(--acc-glow)] flex items-center justify-around px-2 lg:hidden w-full font-sans">
       {tabs.map((tab) => {
         const active = tab.href === '/' ? pathname === '/' : pathname?.startsWith(tab.href);
         return (
           <Link
             key={tab.href}
             href={tab.href}
-            className={`flex flex-col items-center gap-0.5 transition-colors ${active ? 'text-[#e2a93b]' : 'text-[#484f58]'}`}
+            className={`flex flex-col items-center gap-1 transition-colors ${active ? 'text-[var(--acc)]' : 'text-[var(--t3)]'}`}
           >
-            <tab.icon size={22} fill={active ? 'currentColor' : 'none'} />
-            <span className="text-[10px] font-medium">{tab.label}</span>
+            <tab.icon size={active ? 22 : 20} fill={active ? 'currentColor' : 'none'} className="transition-all" />
+            <span className={`text-[10px] ${active ? 'font-bold' : 'font-medium'}`}>{tab.label}</span>
           </Link>
         );
       })}

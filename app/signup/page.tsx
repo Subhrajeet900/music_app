@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { login } = useAuthStore();
+  const { register } = useAuthStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,47 +33,49 @@ export default function SignUpPage() {
     const errs = validate();
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
-    login(name, email);
+    
+    // Auth Store Call
+    register(name, email, password);
     router.push('/');
   };
 
   const inputClass = (field: string) =>
-    `w-full bg-[#0d1117] border ${errors[field] ? 'border-red-500' : 'border-white/[0.08]'} rounded-xl px-4 py-3 text-[#e6edf3] placeholder-[#484f58] focus:outline-none focus:border-[#e2a93b] focus:ring-1 focus:ring-[#e2a93b]/30 transition-colors`;
+    `w-full bg-[var(--bg)] border ${errors[field] ? 'border-red-500' : 'border-[rgba(255,255,255,0.08)]'} rounded-xl px-4 py-3 text-[var(--t1)] placeholder-[var(--s5)] focus:outline-none focus:border-[var(--acc)] transition-colors text-[14px]`;
 
   return (
-    <div className="min-h-screen bg-[#0d1117] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center p-4 relative overflow-hidden font-sans">
       {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#e2a93b]/[0.04] rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[var(--acc)] opacity-[0.04] rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-md bg-[#161b22] rounded-2xl p-8 md:p-10 border border-white/[0.06] shadow-2xl shadow-black/40 animate-[fade-in_0.5s_ease-out]">
+      <div className="relative z-10 w-full max-w-md bg-[var(--s1)] rounded-[20px] p-8 md:p-10 border border-[rgba(255,255,255,0.06)] shadow-2xl animate-[fade-in_0.5s_ease-out]">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 rounded-full border-2 border-[#e2a93b] flex items-center justify-center animate-[pulse-logo_2s_ease-in-out_infinite]">
-            <Music size={28} className="text-[#e2a93b]" />
+          <div className="w-16 h-16 rounded-full border-2 border-[var(--acc)] flex items-center justify-center animate-[pulse-logo_2s_ease-in-out_infinite]">
+            <Music size={28} className="text-[var(--acc)]" />
           </div>
         </div>
 
-        <h1 className="text-2xl font-bold text-[#e6edf3] text-center mb-1">Create Account</h1>
-        <p className="text-[#7d8590] text-center text-sm mb-8">Join <span className="text-[#e2a93b] font-medium">MoodTunes</span> for free</p>
+        <h1 className="text-[24px] font-bold text-[var(--t1)] text-center mb-1">Create Account</h1>
+        <p className="text-[var(--t2)] text-center text-[13px] mb-8">Join <span className="text-[var(--acc)] font-bold">MoodTunes</span> for free</p>
 
         <form onSubmit={handleSignUp} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[#7d8590] mb-1.5">Name</label>
+            <label className="block text-[13px] font-bold tracking-wide text-[var(--t3)] uppercase mb-1.5">Name</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" className={inputClass('name')} />
             {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#7d8590] mb-1.5">Email</label>
+            <label className="block text-[13px] font-bold tracking-wide text-[var(--t3)] uppercase mb-1.5">Email</label>
             <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className={inputClass('email')} />
             {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#7d8590] mb-1.5">Password</label>
+            <label className="block text-[13px] font-bold tracking-wide text-[var(--t3)] uppercase mb-1.5">Password</label>
             <div className="relative">
               <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 6 characters" className={`${inputClass('password')} pr-12`} />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#484f58] hover:text-[#7d8590] transition-colors">
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--s5)] hover:text-[var(--t2)] transition-colors">
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
@@ -81,24 +83,24 @@ export default function SignUpPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#7d8590] mb-1.5">Confirm Password</label>
+            <label className="block text-[13px] font-bold tracking-wide text-[var(--t3)] uppercase mb-1.5">Confirm Password</label>
             <div className="relative">
               <input type={showConfirmPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter your password" className={`${inputClass('confirmPassword')} pr-12`} />
-              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#484f58] hover:text-[#7d8590] transition-colors">
+              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--s5)] hover:text-[var(--t2)] transition-colors">
                 {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
             {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
           </div>
 
-          <button type="submit" className="w-full py-3 bg-[#e2a93b] hover:bg-[#c9952f] text-[#0d1117] font-bold rounded-xl transition-all active:scale-[0.97] text-base mt-2 shadow-lg shadow-[#e2a93b]/20">
+          <button type="submit" className="w-full py-3 bg-[var(--acc)] hover:bg-white text-[var(--bg)] font-bold rounded-xl transition-all active:scale-95 text-[15px] mt-2 shadow-[0_0_20px_var(--acc-dim)]">
             Sign Up
           </button>
         </form>
 
-        <p className="text-center text-sm text-[#7d8590] mt-6">
+        <p className="text-center text-[13px] text-[var(--t2)] font-medium mt-6">
           Already have an account?{' '}
-          <Link href="/login" className="text-[#e2a93b] hover:text-[#c9952f] font-medium transition-colors">
+          <Link href="/login" className="text-[var(--acc)] hover:text-[var(--t1)] font-bold transition-colors">
             Login
           </Link>
         </p>
