@@ -76,12 +76,27 @@ body {
 @keyframes fluidScale { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.2); opacity: 0.6; } }
 @keyframes pulseGlow { 0%, 100% { opacity: 0.4; filter: blur(80px); } 50% { opacity: 0.8; filter: blur(120px); } }
 
-/* Reveal Classes */
-.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s ease, transform 0.5s ease; }
-.reveal.revealed { opacity: 1; transform: translateY(0); }
-.reveal-left { opacity: 0; transform: translateX(-24px); transition: opacity 0.5s ease, transform 0.5s ease; }
+/* Reveal Classes — Premium Cinematic Easing */
+.reveal { 
+  opacity: 0; 
+  transform: translateY(30px); 
+  transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
+  filter: blur(10px);
+}
+.reveal.revealed { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+.reveal-left { 
+  opacity: 0; 
+  transform: translateX(-40px); 
+  transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
+}
 .reveal-left.revealed { opacity: 1; transform: translateX(0); }
-.reveal-scale { opacity: 0; transform: scale(0.96); transition: opacity 0.4s ease, transform 0.4s ease; }
+
+.reveal-scale { 
+  opacity: 0; 
+  transform: scale(0.92); 
+  transition: opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); 
+}
 .reveal-scale.revealed { opacity: 1; transform: scale(1); }
 
 /* Contextual Animation utility classes for use in components */

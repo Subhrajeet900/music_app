@@ -29,8 +29,11 @@ export default function Home() {
   const [activeMood, setActiveMood] = useState('All');
   const [allTracks, setAllTracks] = useState<Track[]>([]);
 
-  const trackListReveal = useScrollReveal();
+  const moodReveal = useScrollReveal();
   const featuredReveal = useScrollReveal();
+  const chartsReveal = useScrollReveal();
+  const vibeReveal = useScrollReveal();
+  const listReveal = useScrollReveal();
 
   useEffect(() => {
     let cancelled = false;
@@ -109,7 +112,7 @@ export default function Home() {
       <div className="p-5 md:p-8">
 
         {/* Section 1 — Mood Filter */}
-        <div className="flex items-center gap-4 mb-10 overflow-x-auto scrollbar-hide pb-2">
+        <div ref={moodReveal.ref} className={`flex items-center gap-4 mb-10 overflow-x-auto scrollbar-hide pb-2 reveal-scale ${moodReveal.isVisible ? 'revealed' : ''}`}>
           {MOOD_CHIPS.map(chip => (
             <button
               key={chip}
@@ -183,7 +186,7 @@ export default function Home() {
         )}
 
         {/* Section 3 — Global Top 10 Charts */}
-        <div className="mb-14 reveal-left revealed">
+        <div ref={chartsReveal.ref} className={`mb-14 reveal-left ${chartsReveal.isVisible ? 'revealed' : ''}`}>
           <h2 className="text-xl font-black text-white tracking-widest uppercase mb-8 flex items-center gap-3 ml-1">
             <span className="w-6 h-[2px] bg-red-500 rounded-full shadow-[0_0_10px_red]" />
             Global Charts
@@ -200,7 +203,7 @@ export default function Home() {
                       {i + 1}
                    </div>
 
-                   <div className="relative z-10">
+                   <div className="relative z-10" style={{ transitionDelay: `${i * 50}ms` }}>
                       <div className="aspect-square rounded-[32px] overflow-hidden mb-4 border border-white/5 bg-[var(--s2)] shadow-2xl transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-3">
                          <img src={track.cover} alt="" className="w-full h-full object-cover" />
                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
@@ -222,19 +225,19 @@ export default function Home() {
         </div>
 
         {/* Section 4 — Vibe Check Grid */}
-        <div className="mb-14">
+        <div ref={vibeReveal.ref} className={`mb-14 reveal ${vibeReveal.isVisible ? 'revealed' : ''}`}>
           <h2 className="text-xl font-black text-white tracking-widest uppercase mb-6 flex items-center gap-3 ml-1">
             <span className="w-6 h-[2px] bg-[var(--acc)] rounded-full" />
             Vibe Check
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {vibeCheck.map((track, i) => (
-              <div
-                key={track.id}
-                className="group cursor-pointer reveal"
-                onClick={() => handlePlay(track, filteredTracks)}
-                style={{ transitionDelay: `${i * 100}ms` }}
-              >
+                <div
+                  key={track.id}
+                  className={`group cursor-pointer reveal ${vibeReveal.isVisible ? 'revealed' : ''}`}
+                  onClick={() => handlePlay(track, filteredTracks)}
+                  style={{ transitionDelay: `${i * 60}ms` }}
+                >
                 <div className="relative aspect-square rounded-[28px] overflow-hidden mb-4 bg-[var(--s2)] border border-white/[0.03] hover-card-anim shadow-xl">
                   <img src={track.cover} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-[1px]">
@@ -251,9 +254,9 @@ export default function Home() {
         </div>
 
 
-        {/* Section 4 — Hyped Songs List */}
+        {/* Section 5 — Hyped Songs List */}
         {hypedList.length > 0 && (
-          <div ref={trackListReveal.ref} className={`mb-8 reveal ${trackListReveal.isVisible ? 'revealed' : ''}`}>
+          <div ref={listReveal.ref} className={`mb-8 reveal ${listReveal.isVisible ? 'revealed' : ''}`}>
              
             <div className="flex items-center justify-between mb-6 px-1">
                <h2 className="text-xl font-bold text-white tracking-tight font-sans">Hyped Songs</h2>
@@ -276,8 +279,8 @@ export default function Home() {
                 <div
                   key={track.id}
                   onClick={() => handlePlay(track, filteredTracks)}
-                  className={`grid grid-cols-[40px_48px_1fr_60px_40px] md:grid-cols-[40px_48px_1fr_1fr_70px_80px] gap-3 px-3 py-2 items-center cursor-pointer rounded-[10px] transition-colors hover:bg-[var(--acc-glow)] group hover-card-anim reveal ${trackListReveal.isVisible ? 'revealed' : ''} ${isCurrentlyPlaying ? 'bg-[var(--playing)] border flex-auto border-[var(--acc-border)]' : 'border border-transparent'}`}
-                  style={{ transitionDelay: `${index * 40}ms` }}
+                  className={`grid grid-cols-[40px_48px_1fr_60px_40px] md:grid-cols-[40px_48px_1fr_1fr_70px_80px] gap-3 px-3 py-2 items-center cursor-pointer rounded-[10px] transition-colors hover:bg-[var(--acc-glow)] group hover-card-anim reveal ${listReveal.isVisible ? 'revealed' : ''} ${isCurrentlyPlaying ? 'bg-[var(--playing)] border flex-auto border-[var(--acc-border)]' : 'border border-transparent'}`}
+                  style={{ transitionDelay: `${index * 30}ms` }}
                 >
                   <span className={`text-right pr-2 text-[14px] tabular-nums font-mono ${isCurrentlyPlaying ? 'text-[var(--acc)]' : 'text-[var(--t3)] group-hover:text-[var(--t2)]'}`}>
                     {isCurrentlyPlaying && isPlaying ? (
