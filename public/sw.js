@@ -2,8 +2,7 @@ const CACHE_NAME = 'moodtunes-pwa-v1';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/app-icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
