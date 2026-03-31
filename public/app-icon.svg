@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <!-- Dark Background -->
+    <rect width="512" height="512" fill="#07090b" rx="112" />
+    
+    <!-- Outer Glow / Ring -->
+    <circle cx="256" cy="256" r="200" fill="none" stroke="rgba(200,205,212,0.06)" stroke-width="30" />
+    <circle cx="256" cy="256" r="160" fill="none" stroke="rgba(200,205,212,0.12)" stroke-width="10" />
+
+    <!-- Headphone & User Icon Path -->
+    <g transform="translate(146, 140) scale(9)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Person Head/Shoulders (dimmed) -->
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" stroke="#c8cdd4" opacity="0.4" stroke-width="2"/>
+      <circle cx="12" cy="8" r="4" stroke="#c8cdd4" opacity="0.4" stroke-width="2"/>
+      
+      <!-- Headphones over the head (bright) -->
+      <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" stroke="#f0f2f4" stroke-width="2.5" />
+    </g>
+</svg>

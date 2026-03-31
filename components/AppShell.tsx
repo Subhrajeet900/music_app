@@ -19,6 +19,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     checkSession();
     setChecked(true);
+
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch((err) => {
+        console.warn('PWA Service Worker registration failed:', err);
+      });
+    }
   }, [checkSession]);
 
   if (!checked) {

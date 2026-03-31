@@ -1,0 +1,17 @@
+{
+  "name": "MoodTunes",
+  "short_name": "MoodTunes",
+  "description": "Premium music streaming experience",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07090b",
+  "theme_color": "#07090b",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -11,6 +11,20 @@ const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' }
 export const metadata: Metadata = {
   title: 'MoodTunes',
   description: 'Premium music streaming experience',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'MoodTunes',
+  },
+};
+
+export const viewport = {
+  themeColor: '#07090b',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
