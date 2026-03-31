@@ -21,7 +21,6 @@ export function Sidebar() {
     { href: '/', label: 'Home', icon: Home, delay: '0ms' },
     { href: '/search', label: 'Search', icon: Search, delay: '60ms' },
     { href: '/library', label: 'Your Library', icon: Library, delay: '120ms' },
-    { href: '/liked', label: 'Liked Songs', icon: Heart, delay: '180ms' },
   ];
 
   return (

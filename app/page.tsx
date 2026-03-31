@@ -125,128 +125,92 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Section 2 — Featured Strip (Pure CSS) */}
+        {/* Section 2 — Smoky Discovery Hero */}
         {featuredTrack && (
           <div 
             ref={featuredReveal.ref}
-            className={`grid grid-cols-1 md:grid-cols-[1.6fr_1fr_1fr] gap-6 mb-12 reveal ${featuredReveal.isVisible ? 'revealed' : ''}`}
+            className={`relative rounded-[40px] overflow-hidden mb-12 group cursor-pointer border border-white/[0.05] bg-black/40 backdrop-blur-3xl shadow-2xl reveal ${featuredReveal.isVisible ? 'revealed' : ''}`}
+            onClick={() => handlePlay(featuredTrack, filteredTracks)}
           >
-            {/* Main Featured */}
-            <div
-              className="relative rounded-[24px] overflow-hidden cursor-pointer group h-[240px] bg-[var(--s2)] border border-[rgba(255,255,255,0.05)] md:row-span-2 hover-card-anim flex flex-col justify-between p-8 shadow-2xl backdrop-blur-md"
-              onClick={() => handlePlay(featuredTrack, filteredTracks)}
-              style={{ transitionDelay: '0ms' }}
-            >
-               {/* Massive watermark */}
-               <div className="absolute top-[-20%] left-[-5%] text-[120px] font-sans font-extrabold text-[rgba(255,255,255,0.03)] leading-none pointer-events-none whitespace-nowrap overflow-hidden z-0">
-                 {featuredTrack.title.toUpperCase()}
-               </div>
-
-               <div className="relative z-10 flex flex-col gap-6">
-                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 border border-[rgba(255,255,255,0.05)] text-[var(--t1)] text-[9px] font-bold uppercase tracking-widest rounded-full w-max">
-                   <span className="w-1.5 h-1.5 bg-[var(--t1)] rounded-full animate-pulse-slow" />
-                   TRENDING NOW
-                 </div>
-                 
-                 <div>
-                    <h2 className="text-[28px] md:text-[32px] font-sans font-extrabold text-[#f0f2f4] mb-2 leading-tight tracking-tight line-clamp-1 truncate">{featuredTrack.title}<br/><span className="text-[#a0a8b0]">— {featuredTrack.artist}</span></h2>
-                    <p className="text-[#a0a8b0] text-[13px] truncate">Trending Hits • {formatDuration(featuredTrack.duration)}</p>
-                 </div>
-               </div>
-               
-               <button className="relative z-10 mt-auto inline-flex items-center gap-2 px-6 py-3 bg-[var(--acc)] text-[var(--bg)] rounded-[12px] font-bold text-[14px] hover:bg-white transition-colors w-max shadow-lg">
-                 <Play size={16} fill="currentColor" /> Play Now
-               </button>
+            {/* Dynamic Smoky Gradient Background */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[80%] bg-purple-600/20 blur-[120px] animate-pulse-slow" />
+              <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[70%] bg-blue-600/20 blur-[100px] animate-pulse-slow delay-700" />
+              <div className="absolute top-[20%] right-[10%] w-[40%] h-[60%] bg-magenta-600/10 blur-[110px] animate-pulse-slow delay-1000" />
             </div>
+            
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
 
-            {/* Side cards */}
-            {sideCards.map((track, i) => (
+            <div className="relative z-20 p-8 md:p-14 flex flex-col md:flex-row items-center gap-10">
+               {/* Left Side: Art */}
+               <div className="w-[200px] h-[200px] md:w-[280px] md:h-[280px] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10 group-hover:scale-105 transition-transform duration-700 relative">
+                  <img src={featuredTrack.cover} alt="" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+               </div>
+
+               {/* Right Side: Info */}
+               <div className="flex-1 flex flex-col items-start gap-4 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 text-[var(--acc)] text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-xl">
+                    <span className="w-2 h-2 bg-[var(--acc)] rounded-full animate-pulse shadow-[0_0_10px_var(--acc)]" />
+                    DISCOVER NEW
+                  </div>
+                  
+                  <div>
+                    <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-2 line-clamp-2 leading-[0.95] drop-shadow-2xl">
+                      {featuredTrack.title}
+                    </h1>
+                    <p className="text-xl md:text-2xl text-[var(--t2)] font-bold italic opacity-80">— {featuredTrack.artist}</p>
+                  </div>
+
+                  <p className="max-w-md text-[var(--t2)] text-sm md:text-base font-medium leading-relaxed opacity-60">
+                    Dive into our latest trending picks. A curated sonic journey through the neon haze.
+                  </p>
+
+                  <div className="flex items-center gap-4 mt-4 w-full md:w-auto">
+                    <button className="flex-1 md:flex-none flex items-center justify-center gap-3 px-10 py-4 bg-white text-black rounded-2xl font-black text-base hover:bg-[var(--acc)] transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] active:scale-95 group/playBtn">
+                      <Play size={20} fill="currentColor" className="group-hover/playBtn:scale-110 transition-transform" /> Play Now
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); toggleLike(featuredTrack.id); }}
+                      className="w-14 h-14 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all hover:text-[var(--acc)]"
+                    >
+                      <Heart size={24} fill={likedSongs.includes(featuredTrack.id) ? 'currentColor' : 'none'} className={likedSongs.includes(featuredTrack.id) ? 'text-[var(--acc)]' : ''} />
+                    </button>
+                  </div>
+               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Section 3 — High Energy Grid */}
+        <div className="mb-14">
+          <h2 className="text-xl font-black text-white tracking-widest uppercase mb-6 flex items-center gap-3 ml-1">
+            <span className="w-6 h-[2px] bg-[var(--acc)] rounded-full" />
+            Vibe Check
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {filteredTracks.slice(1, 6).map((track, i) => (
               <div
                 key={track.id}
-                className="relative rounded-[24px] overflow-hidden cursor-pointer group h-[240px] bg-[var(--s2)] border border-[rgba(255,255,255,0.05)] hover-card-anim shadow-xl flex flex-col p-6 backdrop-blur-md reveal"
+                className="group cursor-pointer reveal"
                 onClick={() => handlePlay(track, filteredTracks)}
-                style={{ transitionDelay: `${(i + 1) * 100}ms` }}
+                style={{ transitionDelay: `${i * 100}ms` }}
               >
-                {/* Large letter art */}
-                <div className="absolute right-[-10%] bottom-[-10px] text-[150px] font-sans font-black text-[rgba(255,255,255,0.02)] leading-none pointer-events-none z-0">
-                  {track.title.charAt(0).toUpperCase()}
-                </div>
-
-                <div className="relative z-10 flex-col flex h-full">
-                   {/* Fake Image Box */}
-                   <div className="w-[60px] h-[60px] rounded-[14px] mb-6 shadow-md" style={{ background: POSTER_GRADIENTS[i === 0 ? 0 : 2] }} />
-                   
-                   <div className="mt-auto">
-                     <h3 className="text-[18px] font-sans font-bold text-[#f0f2f4] truncate mb-1 border-b border-transparent">{track.title}</h3>
-                     <p className="text-[#9098A0] text-[12px] font-mono mb-4">{track.artist} · {formatDuration(track.duration)}</p>
-                     
-                     <span className="inline-block px-3 py-1 bg-[rgba(255,255,255,0.04)] text-[var(--t2)] text-[10px] font-bold uppercase tracking-widest rounded-lg border border-[rgba(255,255,255,0.03)]">
-                       {i === 0 ? 'HOT' : 'NEW DROP'}
-                     </span>
-                   </div>
-                </div>
-
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-20 backdrop-blur-[2px]">
-                  <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-black shadow-xl scale-95 group-hover:scale-100 transition-transform">
-                    <Play size={24} fill="currentColor" className="ml-1" />
+                <div className="relative aspect-square rounded-[28px] overflow-hidden mb-4 bg-[var(--s2)] border border-white/[0.03] hover-card-anim shadow-xl">
+                  <img src={track.cover} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-[1px]">
+                     <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-black shadow-2xl scale-75 group-hover:scale-100 transition-transform duration-500">
+                        <Play size={24} fill="currentColor" className="ml-1" />
+                     </div>
                   </div>
                 </div>
+                <h3 className="text-[#f0f2f4] text-sm font-bold truncate px-1 group-hover:text-[var(--acc)] transition-colors">{track.title}</h3>
+                <p className="text-[#9098A0] text-[11px] font-black uppercase tracking-widest truncate px-1 opacity-60 mt-0.5">{track.artist}</p>
               </div>
             ))}
           </div>
-        )}
+        </div>
 
-        {/* Section 3 — The Midnight Drive */}
-        {midnightMix.length > 0 && (
-          <div 
-            className="relative w-full rounded-[32px] overflow-hidden mb-12 group cursor-pointer border border-[#ffffff05] bg-black/40 backdrop-blur-3xl shadow-2xl reveal hover:border-[rgba(239,68,68,0.2)] transition-colors duration-500" 
-            onClick={() => handlePlay(midnightMix[0], midnightMix)}
-          >
-            {/* Dark Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg)] via-[#0d0f14]/90 to-[#1a1325]/60 z-10 pointer-events-none" />
-            
-            {/* Background Image / Blur */}
-            <img src={midnightMix[0]?.cover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.15] select-none blur-xl scale-110 pointer-events-none" />
-            <div className="absolute inset-0 bg-black/50 z-0 pointer-events-none" />
-
-            {/* Content */}
-            <div className="relative z-20 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-10 overflow-hidden">
-               {/* Left text */}
-               <div className="flex flex-col items-start gap-4">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(255,255,255,0.02)] text-red-500 text-[10px] font-bold uppercase tracking-widest rounded-full border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.15)] backdrop-blur-md">
-                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse-slow shadow-[0_0_10px_red]" />
-                    NIGHT RIDER MIX
-                  </div>
-                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-sans font-black text-white italic tracking-tighter drop-shadow-2xl">The Midnight Drive</h2>
-                  <p className="text-[var(--t2)] font-mono text-sm md:text-[15px] max-w-md leading-relaxed">
-                    Dark asphalt. Neon lights. A curated underground mix for the endless highway.
-                  </p>
-                  <button className="mt-4 flex items-center gap-3 px-8 py-3.5 bg-red-600 text-white rounded-full font-bold text-[15px] hover:bg-red-500 transition-colors shadow-[0_0_25px_rgba(239,68,68,0.4)] active:scale-95 group/btn border border-red-400/20">
-                     <Play size={18} fill="currentColor" className="transform group-hover/btn:translate-x-1 transition-transform" /> Start Engine
-                  </button>
-               </div>
-
-               {/* Right Deck of Covers */}
-               <div className="relative w-full md:w-[350px] h-[160px] md:h-[220px] flex items-center justify-end transform md:scale-110 mt-6 md:mt-0 pointer-events-none">
-                  {midnightMix.slice(0, 5).map((track, i) => (
-                     <div 
-                       key={'mix-'+track.id} 
-                       className="absolute w-[120px] h-[120px] md:w-[160px] md:h-[160px] rounded-[16px] shadow-[0_20px_40px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden transform transition-all duration-700 ease-out group-hover:translate-x-[-20px] group-hover:rotate-0"
-                       style={{ 
-                         right: `${i * 35}px`, 
-                         zIndex: 50 - i, 
-                         transform: `rotate(${i * 6}deg) scale(${1 - i * 0.08})`,
-                         filter: `brightness(${1 - i * 0.2}) contrast(1.1)`
-                       }}
-                     >
-                        <img src={track.cover} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent mix-blend-multiply" />
-                     </div>
-                  ))}
-               </div>
-            </div>
-          </div>
-        )}
 
         {/* Section 4 — Hyped Songs List */}
         {hypedList.length > 0 && (

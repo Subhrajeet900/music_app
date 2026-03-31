@@ -11,7 +11,6 @@ export function BottomNav() {
     { href: '/', label: 'Home', icon: Home },
     { href: '/search', label: 'Search', icon: Search },
     { href: '/library', label: 'Library', icon: Library },
-    { href: '/liked', label: 'Liked', icon: Heart },
     { href: '/profile', label: 'Profile', icon: User },
   ];
 

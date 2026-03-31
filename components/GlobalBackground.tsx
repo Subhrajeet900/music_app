@@ -20,18 +20,21 @@ export function GlobalBackground() {
   }, [pathname]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[-20] transition-opacity duration-1000 bg-[var(--bg)]">
+    <div className="fixed inset-0 pointer-events-none z-[-20] overflow-hidden bg-[var(--bg)]">
+      {/* Smoky Ambient Elements */}
+      <div className="absolute top-[10%] left-[-10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] animate-[float_25s_infinite_ease-in-out]" />
+      <div className="absolute bottom-[-5%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px] animate-[float_30s_infinite_ease-in-out_reverse]" />
+      <div className="absolute top-[40%] right-[10%] w-[400px] h-[400px] bg-magenta-500/5 rounded-full blur-[110px] animate-[fluidScale_15s_infinite_ease-in-out]" />
+      
       {/* Background Image Layer */}
-      <img src={bgImage} alt="background wallpaper" className="absolute inset-0 w-full h-full object-cover opacity-60 object-center mask-bottom-fade transition-opacity duration-1000" />
-      
-      {/* Bottom to Top Subtle Overlay (so text remains readable at the bottom) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-transparent to-transparent opacity-80" />
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        .mask-bottom-fade {
-          mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-        }
-      `}} />
+      <div className="absolute inset-0 transition-opacity duration-1000">
+        <img 
+          src={bgImage} 
+          alt="" 
+          className="w-full h-full object-cover opacity-30 mix-blend-luminosity filter contrast-125 transition-opacity duration-1000" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-[var(--bg)]/80 to-transparent" />
+      </div>
     </div>
   );
 }
