@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         }
       }
 
-      sessionStorage.setItem('moodtunes_session', JSON.stringify({ username: storedUser.username, email }));
+      localStorage.setItem('moodtunes_session', JSON.stringify({ username: storedUser.username, email }));
       set({ isLoggedIn: true, username: storedUser.username, email });
       
       // Dispatch event to tell player store to load data
@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       memberSince: new Date().toISOString()
     }));
 
-    sessionStorage.setItem('moodtunes_session', JSON.stringify({ username, email }));
+    localStorage.setItem('moodtunes_session', JSON.stringify({ username, email }));
     set({ isLoggedIn: true, username, email });
 
     // Initialize blank data for new user
@@ -73,7 +73,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   logout: () => {
     if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('moodtunes_session');
+      localStorage.removeItem('moodtunes_session');
       window.dispatchEvent(new Event('moodtunes_user_logged_out'));
     }
     set({ isLoggedIn: false, username: '', email: '' });
@@ -82,7 +82,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   checkSession: () => {
     if (typeof window === 'undefined') return;
     try {
-      const stored = sessionStorage.getItem('moodtunes_session');
+      const stored = localStorage.getItem('moodtunes_session');
       if (stored) {
         const { username, email } = JSON.parse(stored);
         set({ isLoggedIn: true, username, email });
