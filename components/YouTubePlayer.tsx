@@ -74,11 +74,89 @@ export function YouTubePlayer() {
   const currentVideoIdRef = useRef<string | null>(null);
   const playerInitialized = useRef(false);
 
+  const audioRef = useRef<HTMLAudioElement>(null);
+
   const {
     currentTrack,
     isPlaying,
     volume,
+    nextTrack,
+    prevTrack,
+    togglePlay,
+    seekTo,
   } = usePlayerStore();
+
+  // Media Session API Setup
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+
+    navigator.mediaSession.setActionHandler('play', () => {
+      usePlayerStore.getState().setIsPlaying(true);
+    });
+    navigator.mediaSession.setActionHandler('pause', () => {
+      usePlayerStore.getState().setIsPlaying(false);
+    });
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+      usePlayerStore.getState().prevTrack();
+    });
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+      usePlayerStore.getState().nextTrack();
+    });
+    navigator.mediaSession.setActionHandler('seekto', (details) => {
+      if (details.seekTime !== undefined) {
+        usePlayerStore.getState().seekTo(details.seekTime);
+      }
+    });
+
+    return () => {
+      navigator.mediaSession.setActionHandler('play', null);
+      navigator.mediaSession.setActionHandler('pause', null);
+      navigator.mediaSession.setActionHandler('previoustrack', null);
+      navigator.mediaSession.setActionHandler('nexttrack', null);
+      navigator.mediaSession.setActionHandler('seekto', null);
+    };
+  }, []);
+
+  // Sync Silent Audio with Playback State
+  // This keeps the browser's audio context alive on mobile even when screen is locked
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.play().catch(() => {
+        // Autoplay might be blocked until user interaction, 
+        // but this usually works since it's triggered by a user's play click
+      });
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying]);
+
+  // Update Media Session Metadata
+  useEffect(() => {
+    if (!('mediaSession' in navigator) || !currentTrack) return;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: currentTrack.title,
+      artist: currentTrack.artist,
+      album: 'MoodTunes',
+      artwork: [
+        { src: currentTrack.cover, sizes: '96x96', type: 'image/jpeg' },
+        { src: currentTrack.cover, sizes: '128x128', type: 'image/jpeg' },
+        { src: currentTrack.cover, sizes: '192x192', type: 'image/jpeg' },
+        { src: currentTrack.cover, sizes: '256x256', type: 'image/jpeg' },
+        { src: currentTrack.cover, sizes: '384x384', type: 'image/jpeg' },
+        { src: currentTrack.cover, sizes: '512x512', type: 'image/jpeg' },
+      ],
+    });
+  }, [currentTrack]);
+
+  // Update Media Session Playback State
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+    navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+  }, [isPlaying]);
 
   const clearProgressInterval = useCallback(() => {
     if (intervalRef.current) {
@@ -240,6 +318,13 @@ export function YouTubePlayer() {
         overflow: 'hidden',
         pointerEvents: 'none',
       }}
-    />
+    >
+      <audio
+        ref={audioRef}
+        loop
+        src="data:audio/wav;base64,UklGRigAAABXQVZFRm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAP8A"
+        style={{ display: 'none' }}
+      />
+    </div>
   );
 }
