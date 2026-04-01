@@ -74,7 +74,9 @@ export function YouTubePlayer() {
   const currentVideoIdRef = useRef<string | null>(null);
   const playerInitialized = useRef(false);
 
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const oscillatorRef = useRef<OscillatorNode | null>(null);
+  const wakeLockRef = useRef<any>(null);
 
   const {
     currentTrack,
@@ -85,6 +87,72 @@ export function YouTubePlayer() {
     togglePlay,
     seekTo,
   } = usePlayerStore();
+
+  // Robust Silence Generator using Web Audio API
+  // This is more effective than a looping audio element for keeping the audio thread alive
+  useEffect(() => {
+    if (isPlaying) {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      const ctx = audioContextRef.current;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      if (!oscillatorRef.current) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1, ctx.currentTime); // Inaudible frequency
+        gain.gain.setValueAtTime(0.001, ctx.currentTime); // Near zero volume
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        oscillatorRef.current = osc;
+      }
+    } else {
+      if (oscillatorRef.current) {
+        oscillatorRef.current.stop();
+        oscillatorRef.current.disconnect();
+        oscillatorRef.current = null;
+      }
+    }
+
+    return () => {
+      if (oscillatorRef.current) {
+        oscillatorRef.current.stop();
+        oscillatorRef.current.disconnect();
+        oscillatorRef.current = null;
+      }
+    };
+  }, [isPlaying]);
+
+  // Wake Lock API to prevent system sleep
+  useEffect(() => {
+    const requestWakeLock = async () => {
+      if ('wakeLock' in navigator && isPlaying) {
+        try {
+          wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+        } catch (err) {
+          console.error('Wake Lock request failed:', err);
+        }
+      } else if (wakeLockRef.current && !isPlaying) {
+        wakeLockRef.current.release();
+        wakeLockRef.current = null;
+      }
+    };
+
+    requestWakeLock();
+
+    return () => {
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release();
+        wakeLockRef.current = null;
+      }
+    };
+  }, [isPlaying]);
 
   // Media Session API Setup
   useEffect(() => {
@@ -116,22 +184,6 @@ export function YouTubePlayer() {
       navigator.mediaSession.setActionHandler('seekto', null);
     };
   }, []);
-
-  // Sync Silent Audio with Playback State
-  // This keeps the browser's audio context alive on mobile even when screen is locked
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isPlaying) {
-      audio.play().catch(() => {
-        // Autoplay might be blocked until user interaction, 
-        // but this usually works since it's triggered by a user's play click
-      });
-    } else {
-      audio.pause();
-    }
-  }, [isPlaying]);
 
   // Update Media Session Metadata
   useEffect(() => {
@@ -201,8 +253,8 @@ export function YouTubePlayer() {
       wrapperRef.current.appendChild(innerDiv);
 
       playerRef.current = new window.YT.Player(innerDiv, {
-        height: '0',
-        width: '0',
+        height: '1', // Small but not 0 to keep it "active"
+        width: '1',
         playerVars: {
           autoplay: 0,
           controls: 0,
@@ -222,6 +274,8 @@ export function YouTubePlayer() {
           },
           onStateChange: (event: { data: number }) => {
             const state = event.data;
+            const { isPlaying: storeIsPlaying } = usePlayerStore.getState();
+
             if (state === window.YT.PlayerState.ENDED) {
               clearProgressInterval();
               usePlayerStore.getState().nextTrack();
@@ -230,6 +284,19 @@ export function YouTubePlayer() {
               startProgressTracking();
             } else if (state === window.YT.PlayerState.PAUSED) {
               clearProgressInterval();
+              
+              // AUTO-RESUME LOGIC:
+              // If the video was paused but our app still thinks it should be playing,
+              // it means the OS or the browser auto-paused it (likely due to lock/background).
+              // We wait a tiny bit and try to force-resume.
+              if (storeIsPlaying) {
+                setTimeout(() => {
+                  const player = playerRef.current;
+                  if (player && usePlayerStore.getState().isPlaying) {
+                    player.playVideo();
+                  }
+                }, 100);
+              }
             }
           },
           onError: (event: { data: number }) => {
@@ -311,20 +378,15 @@ export function YouTubePlayer() {
       ref={wrapperRef}
       style={{
         position: 'fixed',
-        top: -9999,
-        left: -9999,
-        width: 0,
-        height: 0,
+        top: 0,
+        left: 0,
+        width: '1px',
+        height: '1px',
         overflow: 'hidden',
         pointerEvents: 'none',
+        opacity: 0.001,
+        zIndex: -1,
       }}
-    >
-      <audio
-        ref={audioRef}
-        loop
-        src="data:audio/wav;base64,UklGRigAAABXQVZFRm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAP8A"
-        style={{ display: 'none' }}
-      />
-    </div>
+    />
   );
 }
