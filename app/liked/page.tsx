@@ -7,7 +7,12 @@ import { useRouter } from 'next/navigation';
 
 export default function LikedSongsPage() {
   const router = useRouter();
-  const { likedTracksData, likedSongs, playTrackFromList, isPlaying, currentTrack, toggleLike } = usePlayerStore();
+  const likedTracksData = usePlayerStore(state => state.likedTracksData);
+  const likedSongs = usePlayerStore(state => state.likedSongs);
+  const playTrackFromList = usePlayerStore(state => state.playTrackFromList);
+  const isPlaying = usePlayerStore(state => state.isPlaying);
+  const currentTrack = usePlayerStore(state => state.currentTrack);
+  const toggleLike = usePlayerStore(state => state.toggleLike);
 
   const totalDuration = likedTracksData.reduce((acc, t) => acc + t.duration, 0);
 

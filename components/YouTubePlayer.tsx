@@ -235,7 +235,7 @@ export function YouTubePlayer() {
           }
         }
       }
-    }, 500);
+    }, 1000);
   }, [clearProgressInterval]);
 
   useEffect(() => {

@@ -6,7 +6,10 @@ import { usePlayerStore } from '@/store/playerStore';
 import { searchYouTube } from '@/lib/youtubeApi';
 
 export default function SearchPage() {
-  const { likedSongs, toggleLike, currentTrack, isPlaying } = usePlayerStore();
+  const likedSongs = usePlayerStore(state => state.likedSongs);
+  const toggleLike = usePlayerStore(state => state.toggleLike);
+  const currentTrack = usePlayerStore(state => state.currentTrack);
+  const isPlaying = usePlayerStore(state => state.isPlaying);
   const [query, setQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [results, setResults] = useState<Track[]>([]);

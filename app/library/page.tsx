@@ -5,7 +5,10 @@ import { usePlayerStore } from '@/store/playerStore';
 import { formatDuration } from '@/lib/tracks';
 
 export default function LibraryPage() {
-  const { likedSongs, likedTracksData, playTrackFromList, playlists } = usePlayerStore();
+  const likedSongs = usePlayerStore(state => state.likedSongs);
+  const likedTracksData = usePlayerStore(state => state.likedTracksData);
+  const playTrackFromList = usePlayerStore(state => state.playTrackFromList);
+  const playlists = usePlayerStore(state => state.playlists);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');

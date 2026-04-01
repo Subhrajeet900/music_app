@@ -22,7 +22,11 @@ const POSTER_GRADIENTS = [
 ];
 
 export default function Home() {
-  const { playTrackFromList, likedSongs, toggleLike, currentTrack, isPlaying } = usePlayerStore();
+  const playTrackFromList = usePlayerStore(state => state.playTrackFromList);
+  const likedSongs = usePlayerStore(state => state.likedSongs);
+  const toggleLike = usePlayerStore(state => state.toggleLike);
+  const currentTrack = usePlayerStore(state => state.currentTrack);
+  const isPlaying = usePlayerStore(state => state.isPlaying);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   

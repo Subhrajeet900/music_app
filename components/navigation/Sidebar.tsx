@@ -9,7 +9,9 @@ import { PlaylistModal } from '@/components/modals/PlaylistModal';
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { currentTrack, isPlaying, playlists } = usePlayerStore();
+  const currentTrack = usePlayerStore(state => state.currentTrack);
+  const isPlaying = usePlayerStore(state => state.isPlaying);
+  const playlists = usePlayerStore(state => state.playlists);
   const [showModal, setShowModal] = useState(false);
   const [mounted, setMounted] = useState(false);
 

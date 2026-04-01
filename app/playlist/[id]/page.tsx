@@ -8,7 +8,15 @@ import { useParams, useRouter } from 'next/navigation';
 export default function PlaylistPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { playlists, playTrackFromList, isPlaying, currentTrack, likedSongs, toggleLike, setQueue, togglePlay, setTrack } = usePlayerStore();
+  const playlists = usePlayerStore(state => state.playlists);
+  const playTrackFromList = usePlayerStore(state => state.playTrackFromList);
+  const isPlaying = usePlayerStore(state => state.isPlaying);
+  const currentTrack = usePlayerStore(state => state.currentTrack);
+  const likedSongs = usePlayerStore(state => state.likedSongs);
+  const toggleLike = usePlayerStore(state => state.toggleLike);
+  const setQueue = usePlayerStore(state => state.setQueue);
+  const togglePlay = usePlayerStore(state => state.togglePlay);
+  const setTrack = usePlayerStore(state => state.setTrack);
 
   const playlist = playlists.find(p => p.id === id);
 

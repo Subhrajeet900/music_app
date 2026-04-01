@@ -8,11 +8,24 @@ import { formatDuration } from '@/lib/tracks';
 
 export function MiniPlayer() {
   const router = useRouter();
-  const {
-    currentTrack, isPlaying, togglePlay, nextTrack, prevTrack,
-    progress, likedSongs, toggleLike, volume, setVolume, toggleMute,
-    shuffle, toggleShuffle, repeatMode, cycleRepeat, currentTime, seekTo
-  } = usePlayerStore();
+  const currentTrack = usePlayerStore(state => state.currentTrack);
+  const isPlaying = usePlayerStore(state => state.isPlaying);
+  const togglePlay = usePlayerStore(state => state.togglePlay);
+  const nextTrack = usePlayerStore(state => state.nextTrack);
+  const prevTrack = usePlayerStore(state => state.prevTrack);
+  const progress = usePlayerStore(state => state.progress);
+  const likedSongs = usePlayerStore(state => state.likedSongs);
+  const toggleLike = usePlayerStore(state => state.toggleLike);
+  const volume = usePlayerStore(state => state.volume);
+  const setVolume = usePlayerStore(state => state.setVolume);
+  const toggleMute = usePlayerStore(state => state.toggleMute);
+  const shuffle = usePlayerStore(state => state.shuffle);
+  const toggleShuffle = usePlayerStore(state => state.toggleShuffle);
+  const repeatMode = usePlayerStore(state => state.repeatMode);
+  const cycleRepeat = usePlayerStore(state => state.cycleRepeat);
+  const currentTime = usePlayerStore(state => state.currentTime);
+  const seekTo = usePlayerStore(state => state.seekTo);
+  
   const [visible, setVisible] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
