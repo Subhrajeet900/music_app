@@ -1,13 +1,12 @@
 'use client';
-
-import { Home, Search, Library, User, Heart } from 'lucide-react';
+import { Home, Search, Library, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export function BottomNav() {
   const pathname = usePathname();
 
-  const tabs = [
+  const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/search', label: 'Search', icon: Search },
     { href: '/library', label: 'Library', icon: Library },
@@ -15,17 +14,22 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="h-[56px] bg-[var(--bg)]/50 backdrop-blur-2xl border-t border-[var(--acc-glow)] flex items-center justify-around px-2 lg:hidden w-full font-sans">
-      {tabs.map((tab) => {
-        const active = tab.href === '/' ? pathname === '/' : pathname?.startsWith(tab.href);
+    <nav className="h-[64px] bg-[#0a0a10]/95 backdrop-blur-xl border-t border-[var(--acc-border)] flex items-center justify-around px-2 pb-safe select-none">
+      {navItems.map((item) => {
+        const active = item.href === '/' ? pathname === '/' : pathname?.startsWith(item.href);
         return (
           <Link
-            key={tab.href}
-            href={tab.href}
-            className={`flex flex-col items-center gap-1 transition-colors ${active ? 'text-[var(--acc)]' : 'text-[var(--t3)]'}`}
+            key={item.label}
+            href={item.href}
+            className="flex flex-col items-center justify-center gap-1 w-full h-full relative"
           >
-            <tab.icon size={active ? 22 : 20} fill={active ? 'currentColor' : 'none'} className="transition-all" />
-            <span className={`text-[10px] ${active ? 'font-bold' : 'font-medium'}`}>{tab.label}</span>
+            <div className={`relative transition-all duration-300 ${active ? 'text-[var(--acc)] -translate-y-0.5 scale-110' : 'text-[var(--t2)]'}`}>
+              <item.icon size={22} fill={active ? 'currentColor' : 'none'} strokeWidth={active ? 2.5 : 2} />
+              {active && <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-[var(--acc)] rounded-full shadow-[0_0_8px_var(--acc)]" />}
+            </div>
+            <span className={`text-[10px] font-bold transition-colors ${active ? 'text-[var(--acc)]' : 'text-[var(--t2)]'}`}>
+              {item.label}
+            </span>
           </Link>
         );
       })}

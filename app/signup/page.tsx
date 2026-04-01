@@ -1,9 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Music, Eye, EyeOff } from 'lucide-react';
+import { Music, Eye, EyeOff, ArrowRight, User, Mail, Lock } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -13,7 +14,6 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
@@ -22,9 +22,8 @@ export default function SignUpPage() {
     if (!email.trim()) errs.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(email)) errs.email = 'Enter a valid email';
     if (!password.trim()) errs.password = 'Password is required';
-    else if (password.length < 6) errs.password = 'Password must be at least 6 characters';
-    if (!confirmPassword.trim()) errs.confirmPassword = 'Please confirm your password';
-    else if (password !== confirmPassword) errs.confirmPassword = 'Passwords do not match';
+    else if (password.length < 6) errs.password = 'Min 6 characters';
+    if (password !== confirmPassword) errs.confirmPassword = 'Passwords mismatch';
     return errs;
   };
 
@@ -34,77 +33,107 @@ export default function SignUpPage() {
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
     
-    // Auth Store Call
     register(name, email, password);
     router.push('/');
   };
 
-  const inputClass = (field: string) =>
-    `w-full bg-[var(--bg)] border ${errors[field] ? 'border-red-500' : 'border-[rgba(255,255,255,0.08)]'} rounded-xl px-4 py-3 text-[var(--t1)] placeholder-[var(--s5)] focus:outline-none focus:border-[var(--acc)] transition-colors text-[14px]`;
-
   return (
-    <div className="min-h-screen bg-transparent flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[var(--acc)] opacity-[0.04] rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-[#050508] flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Haze */}
+      <div className="absolute top-[-20%] right-[-10%] w-[70%] h-[70%] bg-[#7c3aed] opacity-[0.06] blur-[150px] rounded-full animate-drift" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#ec4899] opacity-[0.04] blur-[120px] rounded-full animate-drift-reverse" />
 
-      <div className="relative z-10 w-full max-w-md bg-[var(--s1)] rounded-[20px] p-8 md:p-10 border border-[rgba(255,255,255,0.06)] shadow-2xl animate-[fade-in_0.5s_ease-out]">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 rounded-full border-2 border-[var(--acc)] flex items-center justify-center animate-[pulse-logo_2s_ease-in-out_infinite]">
-            <Music size={28} className="text-[var(--acc)]" />
-          </div>
+      {/* Signup Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative z-10 w-full max-w-[480px] bg-white/[0.03] backdrop-blur-3xl rounded-[48px] p-10 md:p-14 border border-white/10 shadow-[0_40px_120px_rgba(0,0,0,0.8)]"
+      >
+        <div className="text-center mb-10">
+           <div className="w-16 h-16 bg-white/[0.05] border border-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group hover:scale-110 transition-transform cursor-pointer">
+              <Music size={32} className="text-white group-hover:text-[var(--acc)] transition-colors" />
+           </div>
+           <h1 className="text-3xl font-black text-white tracking-tighter mb-2">Create Identity</h1>
+           <p className="text-[var(--t2)] text-sm font-bold tracking-widest uppercase opacity-40">Join the neon collective</p>
         </div>
 
-        <h1 className="text-[24px] font-bold text-[var(--t1)] text-center mb-1">Create Account</h1>
-        <p className="text-[var(--t2)] text-center text-[13px] mb-8">Join <span className="text-[var(--acc)] font-bold">MoodTunes</span> for free</p>
-
-        <form onSubmit={handleSignUp} className="space-y-4">
-          <div>
-            <label className="block text-[13px] font-bold tracking-wide text-[var(--t3)] uppercase mb-1.5">Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" className={inputClass('name')} />
-            {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
-          </div>
-
-          <div>
-            <label className="block text-[13px] font-bold tracking-wide text-[var(--t3)] uppercase mb-1.5">Email</label>
-            <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className={inputClass('email')} />
-            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
-          </div>
-
-          <div>
-            <label className="block text-[13px] font-bold tracking-wide text-[var(--t3)] uppercase mb-1.5">Password</label>
-            <div className="relative">
-              <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 6 characters" className={`${inputClass('password')} pr-12`} />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--s5)] hover:text-[var(--t2)] transition-colors">
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+        <form onSubmit={handleSignUp} className="space-y-5">
+          <div className="grid grid-cols-1 gap-5">
+            <div className="space-y-2">
+              <label className="block text-[10px] font-black text-[var(--t3)] uppercase tracking-[0.2em] ml-1">Full Name</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Neon Operator"
+                  className={`w-full bg-white/[0.04] border ${errors.name ? 'border-red-500/50' : 'border-white/5'} rounded-2xl px-6 py-4 text-white font-bold placeholder-white/10 focus:outline-none focus:ring-2 focus:ring-[var(--acc)]/30 transition-all`}
+                />
+              </div>
+              {errors.name && <p className="text-red-400 text-[10px] font-bold uppercase ml-1">{errors.name}</p>}
             </div>
-            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
-          </div>
 
-          <div>
-            <label className="block text-[13px] font-bold tracking-wide text-[var(--t3)] uppercase mb-1.5">Confirm Password</label>
-            <div className="relative">
-              <input type={showConfirmPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter your password" className={`${inputClass('confirmPassword')} pr-12`} />
-              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--s5)] hover:text-[var(--t2)] transition-colors">
-                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+            <div className="space-y-2">
+              <label className="block text-[10px] font-black text-[var(--t3)] uppercase tracking-[0.2em] ml-1">Email Interface</label>
+              <input
+                type="text"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="operator@moodtunes.io"
+                className={`w-full bg-white/[0.04] border ${errors.email ? 'border-red-500/50' : 'border-white/5'} rounded-2xl px-6 py-4 text-white font-bold placeholder-white/10 focus:outline-none focus:ring-2 focus:ring-[var(--acc)]/30 transition-all`}
+              />
+              {errors.email && <p className="text-red-400 text-[10px] font-bold uppercase ml-1">{errors.email}</p>}
             </div>
-            {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-[var(--t3)] uppercase tracking-[0.2em] ml-1">Passcode</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Min 6"
+                      className={`w-full bg-white/[0.04] border ${errors.password ? 'border-red-500/50' : 'border-white/5'} rounded-2xl px-5 py-4 text-white font-bold placeholder-white/10 focus:outline-none focus:ring-2 focus:ring-[var(--acc)]/30 transition-all font-mono`}
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors">
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+               </div>
+               <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-[var(--t3)] uppercase tracking-[0.2em] ml-1">Confirm</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repeat"
+                    className={`w-full bg-white/[0.04] border ${errors.confirmPassword ? 'border-red-500/50' : 'border-white/5'} rounded-2xl px-5 py-4 text-white font-bold placeholder-white/10 focus:outline-none focus:ring-2 focus:ring-[var(--acc)]/30 transition-all font-mono`}
+                  />
+               </div>
+            </div>
+            {(errors.password || errors.confirmPassword) && (
+              <p className="text-red-400 text-[10px] font-bold uppercase ml-1 text-center">
+                {errors.password || errors.confirmPassword}
+              </p>
+            )}
           </div>
 
-          <button type="submit" className="w-full py-3 bg-[var(--acc)] hover:bg-white text-[var(--bg)] font-bold rounded-xl transition-all active:scale-95 text-[15px] mt-2 shadow-[0_0_20px_var(--acc-dim)]">
-            Sign Up
+          <button
+            type="submit"
+            className="w-full py-5 bg-white text-black font-black rounded-3xl text-lg hover:scale-[1.02] active:scale-95 transition-all shadow-[0_20px_50px_rgba(255,255,255,0.1)] flex items-center justify-center gap-2 group mt-4"
+          >
+            Launch Profile <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
 
-        <p className="text-center text-[13px] text-[var(--t2)] font-medium mt-6">
-          Already have an account?{' '}
-          <Link href="/login" className="text-[var(--acc)] hover:text-[var(--t1)] font-bold transition-colors">
-            Login
+        <p className="text-center text-[13px] text-[var(--t2)] font-bold mt-10 opacity-40">
+          Already one of us?{' '}
+          <Link href="/login" className="text-white hover:text-[var(--acc)] transition-colors opacity-100">
+            Log In
           </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }

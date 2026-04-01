@@ -20,101 +20,81 @@ export function Sidebar() {
   }, []);
 
   const navItems = [
-    { href: '/', label: 'Home', icon: Home, delay: '0ms' },
-    { href: '/search', label: 'Search', icon: Search, delay: '60ms' },
-    { href: '/library', label: 'Your Library', icon: Library, delay: '120ms' },
+    { href: '/', label: 'Home', icon: Home },
+    { href: '/search', label: 'Search', icon: Search },
+    { href: '/library', label: 'Your Library', icon: Library },
+    { href: '/liked', label: 'Liked Songs', icon: Heart },
   ];
 
   return (
-    <aside className="w-[250px] flex-shrink-0 bg-[var(--bg)] h-full flex-col hidden lg:flex border-r border-[var(--acc-glow)] font-sans">
-      {/* Logo */}
-      <div className="px-5 pt-5 pb-4 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full border-2 border-[var(--acc)] flex items-center justify-center animate-aura-spin">
-          <Music size={16} className="text-[var(--acc)]" />
+    <aside className="w-[240px] flex-shrink-0 bg-[#0a0a10] h-full flex flex-col hidden lg:flex border-r border-[var(--acc-border)] font-sans select-none overflow-hidden">
+      {/* Logo Area */}
+      <div className="h-[72px] px-6 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--acc)] to-[var(--acc-light)] flex items-center justify-center shadow-[0_0_20px_rgba(124,58,237,0.3)]">
+          <Music size={18} className="text-black" />
         </div>
-        <div>
-          <span className="text-[var(--t1)] font-bold text-base tracking-tight block leading-tight font-sans">MoodTunes</span>
-          <span className="text-[var(--t2)] text-[10px] font-medium uppercase tracking-[0.15em]">Your Universe</span>
-        </div>
+        <span className="text-[18px] font-black text-white tracking-tight">MoodTunes</span>
       </div>
 
-      {/* Menu Section */}
-      <div className="px-5 mt-2">
-        <span className="text-[var(--t3)] text-[10px] font-bold uppercase tracking-[0.15em] mb-2 block">Menu</span>
-        <nav className="flex flex-col gap-0.5">
-          {navItems.map((item) => {
-            const active = item.href === '/' ? pathname === '/' : pathname?.startsWith(item.href);
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all animate-sidebarItemIn ${
-                  active
-                    ? 'text-[var(--acc)] bg-[var(--acc-dim)]'
-                    : 'text-[var(--t2)] hover:text-[var(--t1)] hover:bg-[var(--acc-glow)]'
-                }`}
-                style={{ animationDelay: item.delay, animationFillMode: 'both' }}
-              >
-                <span className={`w-1 h-1 rounded-full transition-colors ${active ? 'bg-[var(--acc)]' : 'bg-[var(--t3)]'}`} />
-                <item.icon size={18} fill={active ? 'currentColor' : 'none'} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+      {/* Navigation Links */}
+      <nav className="px-3 flex flex-col gap-1 mt-4">
+        {navItems.map((item) => {
+          const active = item.href === '/' ? pathname === '/' : pathname?.startsWith(item.href);
+          return (
+            <Link
+              key={item.label}
+              href={item.href}
+              className={`group flex items-center gap-3 px-4 h-[44px] rounded-xl transition-all relative ${
+                active 
+                  ? 'bg-white/5 text-white' 
+                  : 'text-[var(--t2)] hover:text-white hover:bg-white/[0.03]'
+              }`}
+            >
+              {active && <div className="absolute left-[-3px] top-1/2 -translate-y-1/2 w-[3px] h-6 bg-[var(--acc)] rounded-r-md shadow-[0_0_15px_var(--acc)]" />}
+              <item.icon size={18} className={active ? 'text-[var(--acc-light)]' : ''} />
+              <span className="text-[14px] font-bold">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
 
       {/* Playlists Section */}
-      <div className="px-5 mt-6 flex-1 flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between mb-3">
-           <span className="text-[var(--t3)] text-[10px] font-bold uppercase tracking-[0.15em]">Playlists</span>
-           <button 
-             onClick={() => setShowModal(true)}
-             className="text-[var(--acc)] hover:text-[var(--t1)] transition-colors hover:scale-110 active:scale-95 flex items-center justify-center w-[16px] h-[16px] animate-pulse-glow rounded-full"
-           >
-             <Plus size={16} />
-           </button>
+      <div className="flex-1 flex flex-col min-h-0 mt-8">
+        <div className="px-6 mb-3 flex items-center justify-between">
+          <span className="text-[10px] font-black text-[var(--t3)] uppercase tracking-[0.2em]">Your Playlists</span>
         </div>
-        <div className="flex-1 overflow-y-auto space-y-0.5 scrollbar-hide">
-          {mounted && playlists.map((p, i) => {
+        
+        <div className="flex-1 overflow-y-auto px-3 space-y-1 scrollbar-hide mb-4">
+          {mounted && playlists.map((p) => {
             const active = pathname === `/playlist/${p.id}`;
             return (
               <Link
                 key={p.id}
                 href={`/playlist/${p.id}`}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all group animate-sidebarItemIn ${
-                  active ? 'bg-[var(--s2)] text-[var(--t1)]' : 'text-[var(--t2)] hover:text-[var(--t1)] hover:bg-[var(--acc-glow)]'
+                className={`flex items-center gap-3 px-4 h-[36px] rounded-lg transition-all group ${
+                  active ? 'bg-white/5 text-white' : 'text-[var(--t2)] hover:text-white hover:bg-white/[0.03]'
                 }`}
-                style={{ animationDelay: `${(i + 4) * 60}ms`, animationFillMode: 'both' }}
               >
-                <span className="w-7 h-7 rounded-[7px] flex-shrink-0" style={{ background: p.color }} />
-                <div className="flex flex-col flex-1 min-w-0">
-                   <span className="truncate">{p.name}</span>
-                   <span className={`text-[10px] transition-colors ${active ? 'text-[var(--t2)]' : 'text-[var(--t3)] group-hover:text-[var(--t2)]'}`}>
-                     {p.tracks.length} songs
-                   </span>
-                </div>
+                <div 
+                  className="w-5 h-5 rounded flex-shrink-0 opacity-80 group-hover:opacity-100" 
+                  style={{ background: p.color }} 
+                />
+                <span className="truncate text-[13px] font-medium">{p.name}</span>
               </Link>
             );
           })}
         </div>
       </div>
 
-      {/* Now Playing Widget */}
-      {currentTrack && (
-        <div className="px-5 pb-4 mt-3">
-          <span className="text-[var(--t3)] text-[10px] font-bold uppercase tracking-[0.15em] mb-2 block">Now Playing</span>
-          <Link href="/now-playing" className="flex items-center gap-3 p-2 rounded-xl bg-[var(--s1)] hover:bg-[var(--s2)] transition-all group border border-[var(--acc-glow)] hover:border-[var(--acc-border)]">
-            <div className={`w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ${isPlaying ? 'now-playing-disc' : 'now-playing-disc paused'}`}>
-              <img src={currentTrack.cover} alt={currentTrack.title} className="w-full h-full object-cover" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[var(--t1)] text-xs font-medium truncate">{currentTrack.title}</p>
-              <p className="text-[var(--t2)] text-[11px] truncate">{currentTrack.artist}</p>
-            </div>
-          </Link>
-        </div>
-      )}
+      {/* Create Playlist Button */}
+      <div className="p-4 mt-auto">
+        <button 
+          onClick={() => setShowModal(true)}
+          className="w-full h-11 rounded-xl border border-dashed border-white/10 hover:border-[var(--acc-border)] hover:bg-white/[0.02] transition-all flex items-center justify-center gap-2 text-[13px] font-bold text-[var(--t2)] hover:text-white"
+        >
+          <Plus size={16} /> Create New Playlist
+        </button>
+      </div>
 
       {showModal && <PlaylistModal onClose={() => setShowModal(false)} />}
     </aside>

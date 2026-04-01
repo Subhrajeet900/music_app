@@ -1,24 +1,31 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { Play, Heart, Loader2 } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Play, Heart, Loader2, ChevronRight, Plus, Disc3, Sparkles, TrendingUp, Music2 } from 'lucide-react';
 import { usePlayerStore } from '@/store/playerStore';
 import { Track, formatDuration } from '@/lib/tracks';
 import { getTrendingMusic } from '@/lib/youtubeApi';
 import { TrackMenu } from '@/components/menus/TrackMenu';
-import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const MOODS = ['Chill', 'Hype', 'Focus', 'Sleep', 'Workout'];
-const MOOD_CHIPS = ['All', ...MOODS];
+const MOODS = [
+  { id: 'all', label: 'All', emoji: '✨', color: 'var(--acc)' },
+  { id: 'happy', label: 'Happy', emoji: '😊', color: '#fbbf24' },
+  { id: 'relax', label: 'Relax', emoji: '🌿', color: '#10b981' },
+  { id: 'focus', label: 'Focus', emoji: '🧠', color: '#3b82f6' },
+  { id: 'workout', label: 'Workout', emoji: '💪', color: '#ef4444' },
+  { id: 'sad', label: 'Sad', emoji: '😢', color: '#6366f1' },
+  { id: 'sleep', label: 'Sleep', emoji: '🌙', color: '#8b5cf6' },
+];
 
-const POSTER_GRADIENTS = [
-  'linear-gradient(135deg, #1e3a8a, #0f172a)',
-  'linear-gradient(135deg, #4c1d95, #1e1b4b)',
-  'linear-gradient(135deg, #831843, #4c0519)',
-  'linear-gradient(135deg, #064e3b, #022c22)',
-  'linear-gradient(135deg, #78350f, #451a03)',
-  'linear-gradient(135deg, #111827, #000000)',
-  'linear-gradient(135deg, #1e40af, #312e81)',
-  'linear-gradient(135deg, #9d174d, #4a044e)'
+const GENRES = [
+  { name: 'Pop', gradient: 'from-[#ec4899] to-[#8b5cf6]' },
+  { name: 'Hip-Hop', gradient: 'from-[#f59e0b] to-[#ef4444]' },
+  { name: 'EDM', gradient: 'from-[#06b6d4] to-[#3b82f6]' },
+  { name: 'Rock', gradient: 'from-[#64748b] to-[#0f172a]' },
+  { name: 'Jazz', gradient: 'from-[#78350f] to-[#451a03]' },
+  { name: 'Lofi', gradient: 'from-[#1e3a8a] to-[#1e1b4b]' },
+  { name: 'Indie', gradient: 'from-[#10b981] to-[#064e3b]' },
+  { name: 'Classical', gradient: 'from-[#d1d5db] to-[#4b5563]' },
 ];
 
 export default function Home() {
@@ -27,308 +34,281 @@ export default function Home() {
   const toggleLike = usePlayerStore(state => state.toggleLike);
   const currentTrack = usePlayerStore(state => state.currentTrack);
   const isPlaying = usePlayerStore(state => state.isPlaying);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  const [activeMood, setActiveMood] = useState('All');
-  const [allTracks, setAllTracks] = useState<Track[]>([]);
 
-  const moodReveal = useScrollReveal();
-  const featuredReveal = useScrollReveal();
-  const chartsReveal = useScrollReveal();
-  const vibeReveal = useScrollReveal();
-  const listReveal = useScrollReveal();
+  const [loading, setLoading] = useState(true);
+  const [allTracks, setAllTracks] = useState<Track[]>([]);
+  const [activeMood, setActiveMood] = useState('all');
+  const [heroIndex, setHeroIndex] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
-
     async function loadMusic() {
       try {
-        setLoading(true);
-        // Fetch 40 tracks for better variety
-        const results = await getTrendingMusic(40);
-        
-        if (!cancelled) {
-          // Assign random moods
-          const tracksWithMoods = results.map(t => ({
-            ...t,
-            mood: MOODS[Math.floor(Math.random() * MOODS.length)]
-          }));
-          setAllTracks(tracksWithMoods);
-          setLoading(false);
-        }
+        const results = await getTrendingMusic(50);
+        setAllTracks(results);
+        setLoading(false);
       } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load music');
-          setLoading(false);
-        }
+        console.error(err);
+        setLoading(false);
       }
     }
-
     loadMusic();
-    return () => { cancelled = true; };
   }, []);
 
-  const filteredTracks = activeMood === 'All' 
-    ? allTracks 
-    : allTracks.filter(t => t.mood === activeMood);
-
-  const featuredTrack = filteredTracks[0];
-  const topCharts = filteredTracks.slice(1, 11);
-  const vibeCheck = filteredTracks.slice(11, 21);
-  const hypedList = filteredTracks.slice(21);
-
-  const handlePlay = (track: Track, list: Track[]) => {
-    playTrackFromList(track, list);
-  };
+  // Hero Rotation
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex(prev => (prev + 1) % 3);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
 
   if (loading) {
     return (
-      <div className="p-5 md:p-8 flex items-center justify-center min-h-screen">
-         <div className="flex flex-col items-center gap-4 text-[var(--t2)] animate-pulse">
-           <Loader2 size={32} className="animate-spin text-[var(--acc)]" />
-           <span className="text-sm font-sans tracking-wide">Tuning your universe...</span>
-         </div>
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 className="animate-spin text-[var(--acc)]" size={32} />
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="p-5 md:p-8 flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-[#f87171] text-lg font-bold mb-2">Connection Lost</p>
-          <p className="text-[var(--t2)] text-sm mb-6">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-[var(--acc)] text-[var(--bg)] rounded-full font-bold hover:bg-white transition-colors button-active-anim"
-          >
-            Retry Connection
-          </button>
-        </div>
-      </div>
-    );
-  }
-
+  const featured = allTracks.slice(0, 3);
+  const recentlyPlayed = allTracks.slice(3, 11);
+  const topCharts = allTracks.slice(11, 21);
+  const discoverNew = allTracks.slice(21, 31);
+  const chillPicks = allTracks.slice(31, 41);
 
   return (
-    <div className="relative w-full min-h-full pb-32 animate-page-enter">
-      <div className="p-5 md:p-8">
-
-        {/* Section 1 — Mood Filter */}
-        <div ref={moodReveal.ref} className={`flex items-center gap-4 mb-10 overflow-x-auto scrollbar-hide pb-2 reveal-scale ${moodReveal.isVisible ? 'revealed' : ''}`}>
-          {MOOD_CHIPS.map(chip => (
-            <button
-              key={chip}
-              onClick={() => setActiveMood(chip)}
-              className={`px-6 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border button-active-anim ${
-                activeMood === chip
-                  ? 'bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.1)]'
-                  : 'bg-transparent text-[var(--t2)] border-[var(--s3)] hover:border-[var(--s5)] hover:text-white'
-              }`}
+    <div className="flex-1 space-y-12 pb-20 animate-page-enter relative">
+      {/* 1. Hero Banner */}
+      <section className="px-5 md:px-8 pt-6">
+        <div className="relative h-[220px] md:h-[420px] w-full rounded-[32px] md:rounded-[48px] overflow-hidden group shadow-2xl border border-white/5">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={heroIndex}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="absolute inset-0"
             >
-              {chip}
-            </button>
-          ))}
-        </div>
-
-        {/* Section 2 — Smoky Discovery Hero */}
-        {featuredTrack && (
-          <div 
-            ref={featuredReveal.ref}
-            className={`relative rounded-[40px] overflow-hidden mb-12 group cursor-pointer border border-white/[0.05] bg-black/40 backdrop-blur-3xl shadow-2xl reveal ${featuredReveal.isVisible ? 'revealed' : ''}`}
-            onClick={() => handlePlay(featuredTrack, filteredTracks)}
-          >
-            {/* Dynamic Smoky Gradient Background */}
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[80%] bg-purple-600/20 blur-[120px] animate-pulse-slow" />
-              <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[70%] bg-blue-600/20 blur-[100px] animate-pulse-slow delay-700" />
-              <div className="absolute top-[20%] right-[10%] w-[40%] h-[60%] bg-magenta-600/10 blur-[110px] animate-pulse-slow delay-1000" />
-            </div>
-            
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
-
-            <div className="relative z-20 p-8 md:p-14 flex flex-col md:flex-row items-center gap-10">
-               {/* Left Side: Art */}
-               <div className="w-[200px] h-[200px] md:w-[280px] md:h-[280px] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10 group-hover:scale-105 transition-transform duration-700 relative">
-                  <img src={featuredTrack.cover} alt="" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-               </div>
-
-               {/* Right Side: Info */}
-               <div className="flex-1 flex flex-col items-start gap-4 text-center md:text-left">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 text-[var(--acc)] text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-xl">
-                    <span className="w-2 h-2 bg-[var(--acc)] rounded-full animate-pulse shadow-[0_0_10px_var(--acc)]" />
-                    DISCOVER NEW
-                  </div>
-                  
-                  <div>
-                    <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-2 line-clamp-2 leading-[0.95] drop-shadow-2xl">
-                      {featuredTrack.title}
-                    </h1>
-                    <p className="text-xl md:text-2xl text-[var(--t2)] font-bold italic opacity-80">— {featuredTrack.artist}</p>
-                  </div>
-
-                  <p className="max-w-md text-[var(--t2)] text-sm md:text-base font-medium leading-relaxed opacity-60">
-                    Dive into our latest trending picks. A curated sonic journey through the neon haze.
-                  </p>
-
-                  <div className="flex items-center gap-4 mt-4 w-full md:w-auto">
-                    <button className="flex-1 md:flex-none flex items-center justify-center gap-3 px-10 py-4 bg-white text-black rounded-2xl font-black text-base hover:bg-[var(--acc)] transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] active:scale-95 group/playBtn">
-                      <Play size={20} fill="currentColor" className="group-hover/playBtn:scale-110 transition-transform" /> Play Now
-                    </button>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); toggleLike(featuredTrack.id); }}
-                      className="w-14 h-14 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all hover:text-[var(--acc)]"
-                    >
-                      <Heart size={24} fill={likedSongs.includes(featuredTrack.id) ? 'currentColor' : 'none'} className={likedSongs.includes(featuredTrack.id) ? 'text-[var(--acc)]' : ''} />
-                    </button>
-                  </div>
-               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Section 3 — Global Top 10 Charts */}
-        <div ref={chartsReveal.ref} className={`mb-14 reveal-left ${chartsReveal.isVisible ? 'revealed' : ''}`}>
-          <h2 className="text-xl font-black text-white tracking-widest uppercase mb-8 flex items-center gap-3 ml-1">
-            <span className="w-6 h-[2px] bg-red-500 rounded-full shadow-[0_0_10px_red]" />
-            Global Charts
-          </h2>
-          <div className="flex items-center gap-10 overflow-x-auto scrollbar-hide pb-10 px-1 snap-x">
-             {topCharts.map((track, i) => (
-                <div 
-                  key={'chart-'+track.id} 
-                  className="relative flex-shrink-0 w-[180px] group cursor-pointer snap-start"
-                  onClick={() => handlePlay(track, filteredTracks)}
-                >
-                   {/* Large Rank Number background */}
-                   <div className="absolute left-[-20px] top-[-30px] text-[120px] font-black text-white/[0.04] leading-none pointer-events-none select-none z-0 italic transition-colors group-hover:text-red-500/10">
-                      {i + 1}
-                   </div>
-
-                   <div className="relative z-10" style={{ transitionDelay: `${i * 50}ms` }}>
-                      <div className="aspect-square rounded-[32px] overflow-hidden mb-4 border border-white/5 bg-[var(--s2)] shadow-2xl transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-3">
-                         <img src={track.cover} alt="" className="w-full h-full object-cover" />
-                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black">
-                               <Play size={20} fill="currentColor" className="ml-1" />
-                            </div>
-                         </div>
-                      </div>
-                      <h3 className="text-[#f0f2f4] text-sm font-bold truncate mb-1 group-hover:text-red-500 transition-colors">
-                        {track.title}
-                      </h3>
-                      <p className="text-[#9098A0] text-[11px] font-black uppercase tracking-widest truncate opacity-60">
-                        {track.artist}
-                      </p>
-                   </div>
+              <img src={featured[heroIndex].cover} className="w-full h-full object-cover" alt="" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#050508] via-[#050508]/60 to-transparent z-10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050508] via-transparent to-transparent z-10" />
+              
+              <div className="absolute inset-0 z-20 flex flex-col justify-center px-8 md:px-20 max-w-3xl pointer-events-none">
+                <span className="inline-flex w-fit items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-[10px] font-black tracking-[0.2em] text-[var(--acc-light)] mb-4">
+                  <Sparkles size={12} /> FEATURED
+                </span>
+                <h1 className="text-3xl md:text-6xl font-black text-white leading-[0.95] tracking-tighter mb-4 line-clamp-2 md:drop-shadow-2xl">
+                  {featured[heroIndex].title}
+                </h1>
+                <p className="text-lg md:text-2xl text-[var(--t2)] font-bold mb-8">— {featured[heroIndex].artist}</p>
+                <div className="flex items-center gap-4 pointer-events-auto">
+                  <button 
+                    onClick={() => playTrackFromList(featured[heroIndex], allTracks)}
+                    className="flex items-center gap-3 px-8 py-4 bg-white text-black rounded-2xl font-black transition-all hover:bg-[var(--acc)] active:scale-95 shadow-xl"
+                  >
+                    <Play size={20} fill="currentColor" /> Play Now
+                  </button>
+                  <button className="flex items-center gap-3 px-6 py-4 bg-white/10 backdrop-blur-md border border-white/10 text-white rounded-2xl font-bold transition-all hover:bg-white/20 active:scale-95">
+                    <Plus size={20} /> Library
+                  </button>
                 </div>
-             ))}
-          </div>
-        </div>
-
-        {/* Section 4 — Vibe Check Grid */}
-        <div ref={vibeReveal.ref} className={`mb-14 reveal ${vibeReveal.isVisible ? 'revealed' : ''}`}>
-          <h2 className="text-xl font-black text-white tracking-widest uppercase mb-6 flex items-center gap-3 ml-1">
-            <span className="w-6 h-[2px] bg-[var(--acc)] rounded-full" />
-            Vibe Check
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {vibeCheck.map((track, i) => (
-                <div
-                  key={track.id}
-                  className={`group cursor-pointer reveal ${vibeReveal.isVisible ? 'revealed' : ''}`}
-                  onClick={() => handlePlay(track, filteredTracks)}
-                  style={{ transitionDelay: `${i * 60}ms` }}
-                >
-                <div className="relative aspect-square rounded-[28px] overflow-hidden mb-4 bg-[var(--s2)] border border-white/[0.03] hover-card-anim shadow-xl">
-                  <img src={track.cover} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-[1px]">
-                     <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-black shadow-2xl scale-75 group-hover:scale-100 transition-transform duration-500">
-                        <Play size={24} fill="currentColor" className="ml-1" />
-                     </div>
-                  </div>
-                </div>
-                <h3 className="text-[#f0f2f4] text-sm font-bold truncate px-1 group-hover:text-[var(--acc)] transition-colors">{track.title}</h3>
-                <p className="text-[#9098A0] text-[11px] font-black uppercase tracking-widest truncate px-1 opacity-60 mt-0.5">{track.artist}</p>
               </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Indicators */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+            {[0, 1, 2].map(i => (
+              <div 
+                key={i} 
+                className={`h-1.5 transition-all duration-500 rounded-full ${heroIndex === i ? 'w-8 bg-white' : 'w-1.5 bg-white/20'}`} 
+              />
             ))}
           </div>
         </div>
+      </section>
 
+      {/* 2. Mood Selector Strip */}
+      <section className="px-5 md:px-8">
+        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide py-1">
+          {MOODS.map(mood => (
+            <button
+              key={mood.id}
+              onClick={() => setActiveMood(mood.id)}
+              className={`flex items-center gap-3 px-6 py-3 rounded-[20px] transition-all whitespace-nowrap active:scale-95 ${
+                activeMood === mood.id
+                  ? 'bg-gradient-to-br text-white shadow-lg'
+                  : 'bg-white/[0.04] text-[var(--t2)] border border-white/[0.05] hover:bg-white/10'
+              }`}
+              style={{
+                background: activeMood === mood.id ? `linear-gradient(135deg, ${mood.color}, rgba(255,255,255,0.1))` : ''
+              }}
+            >
+              <span className="text-lg">{mood.emoji}</span>
+              <span className="text-[14px] font-bold tracking-tight">{mood.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
 
-        {/* Section 5 — Hyped Songs List */}
-        {hypedList.length > 0 && (
-          <div ref={listReveal.ref} className={`mb-8 reveal ${listReveal.isVisible ? 'revealed' : ''}`}>
-             
-            <div className="flex items-center justify-between mb-6 px-1">
-               <h2 className="text-xl font-bold text-white tracking-tight font-sans">Hyped Songs</h2>
-            </div>
-             
-            <div className="hidden md:grid grid-cols-[40px_48px_1fr_1fr_70px_80px] gap-3 px-3 py-2 text-[var(--t3)] text-[11px] font-bold uppercase tracking-widest border-b border-[var(--acc-glow)] mb-1">
-              <span className="text-right pr-2">#</span>
-              <span></span>
-              <span>Title</span>
-              <span>Artist</span>
-              <span className="text-right">Time</span>
-              <span></span>
-            </div>
-
-            {hypedList.map((track, index) => {
-              const liked = likedSongs.includes(track.id);
-              const isCurrentlyPlaying = currentTrack?.id === track.id;
-              
-              return (
-                <div
-                  key={track.id}
-                  onClick={() => handlePlay(track, filteredTracks)}
-                  className={`grid grid-cols-[40px_48px_1fr_60px_40px] md:grid-cols-[40px_48px_1fr_1fr_70px_80px] gap-3 px-3 py-2 items-center cursor-pointer rounded-[10px] transition-colors hover:bg-[var(--acc-glow)] group hover-card-anim reveal ${listReveal.isVisible ? 'revealed' : ''} ${isCurrentlyPlaying ? 'bg-[var(--playing)] border flex-auto border-[var(--acc-border)]' : 'border border-transparent'}`}
-                  style={{ transitionDelay: `${index * 30}ms` }}
-                >
-                  <span className={`text-right pr-2 text-[14px] tabular-nums font-mono ${isCurrentlyPlaying ? 'text-[var(--acc)]' : 'text-[var(--t3)] group-hover:text-[var(--t2)]'}`}>
-                    {isCurrentlyPlaying && isPlaying ? (
-                       <span className="flex items-end justify-end h-4 gap-[2px]">
-                         <span className="w-[3px] bg-[var(--acc)] animate-[eqBar1_0.8s_ease-in-out_infinite]" />
-                         <span className="w-[3px] bg-[var(--acc)] animate-[eqBar2_0.9s_ease-in-out_infinite]" />
-                         <span className="w-[3px] bg-[var(--acc)] animate-[eqBar3_0.7s_ease-in-out_infinite]" />
-                       </span>
-                    ) : (isCurrentlyPlaying ? '♪' : index + 1)}
-                  </span>
-                  
-                  <div className="w-[40px] h-[40px] md:w-[48px] md:h-[48px] rounded-lg overflow-hidden relative shadow-md flex-shrink-0 bg-[var(--s2)]">
-                    <img src={track.cover} alt={track.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/50 opacity-100 md:opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-10">
-                      <Play size={16} fill="white" className="text-white ml-0.5" />
-                    </div>
-                  </div>
-
-                  <div className="min-w-0 pr-2">
-                    <p className={`text-[15px] md:text-[16px] font-bold font-sans truncate ${isCurrentlyPlaying ? 'text-[var(--acc)]' : 'text-[var(--t1)]'}`}>{track.title}</p>
-                    <p className="text-[12px] md:text-[13px] text-[var(--t2)] font-mono truncate md:hidden mt-[1px]">{track.artist}</p>
-                  </div>
-
-                  <span className="text-[13px] text-[var(--t2)] font-mono truncate hidden md:block">{track.artist}</span>
-
-                  <span className="text-[13px] text-[var(--t2)] font-mono text-right tabular-nums">{track.duration > 0 ? formatDuration(track.duration) : '--:--'}</span>
-
-                  <div className="flex items-center justify-end gap-2 pr-1">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); toggleLike(track.id); }}
-                      className={`flex items-center justify-center transition-all ${liked ? 'text-[var(--acc)] animate-heart-pop' : 'text-[var(--t3)] opacity-100 md:opacity-0 group-hover:opacity-100 hover:text-[var(--acc-soft)]'}`}
-                    >
-                      <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
-                    </button>
-                    <div className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                      <TrackMenu track={track} />
-                    </div>
-                  </div>
+      {/* 3. Recently Played */}
+      <section className="px-5 md:px-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-[20px] md:text-[24px] font-black text-white tracking-tight">Recently Played</h2>
+          <button className="text-[13px] font-bold text-[var(--acc)] hover:underline">See all</button>
+        </div>
+        <div className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-1 px-1">
+          {recentlyPlayed.map((track, i) => (
+            <div 
+              key={track.id + i} 
+              className="flex-shrink-0 w-[130px] md:w-[160px] group transition-all"
+              onClick={() => playTrackFromList(track, recentlyPlayed)}
+            >
+              <div className="relative aspect-square rounded-[16px] md:rounded-[24px] overflow-hidden mb-3 bg-[#111119] border border-white/[0.03] shadow-lg group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+                <img src={track.cover} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-[2px]">
+                   <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black shadow-2xl translate-y-4 group-hover:translate-y-0 transition-all">
+                      <Play size={20} fill="currentColor" className="ml-1" />
+                   </div>
                 </div>
-              );
-            })}
+              </div>
+              <h3 className="text-[14px] font-bold text-white truncate px-1 group-hover:text-[var(--acc)] transition-colors">{track.title}</h3>
+              <p className="text-[12px] text-[var(--t2)] truncate px-1">{track.artist}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+      {/* 4. Mood Playlists - Subset */}
+      <section className="px-5 md:px-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-[22px] font-black text-white tracking-tight">Mood Mixes</h2>
+          <ChevronRight size={20} className="text-[var(--t2)]" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {MOODS.slice(1, 5).map((mood) => (
+            <div 
+              key={mood.id}
+              className="group relative h-[180px] rounded-[24px] overflow-hidden cursor-pointer border border-white/5 active:scale-[0.98] transition-all"
+              onClick={() => {
+                const tracks = allTracks.filter(t => Math.random() > 0.5); // Mock mood filter
+                playTrackFromList(tracks[0], tracks);
+              }}
+            >
+              <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-110" style={{ background: `linear-gradient(135deg, ${mood.color}40, #0a0a10)` }} />
+              <div className="absolute inset-0 bg-black/20" />
+              <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                <span className="text-3xl mb-2">{mood.emoji}</span>
+                <h3 className="text-xl font-black text-white">{mood.label}</h3>
+                <p className="text-[12px] text-white/60 font-bold uppercase tracking-widest mt-1">Your Daily Mix</p>
+              </div>
+              <div className="absolute top-4 right-4 w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
+                <Play size={16} fill="currentColor" className="ml-0.5" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. Top Charts */}
+      <section className="px-5 md:px-8">
+        <div className="flex items-center gap-3 mb-8">
+          <TrendingUp className="text-[var(--acc)]" size={24} />
+          <h2 className="text-[22px] font-black text-white tracking-tight">Top Charts This Week</h2>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-1">
+          {topCharts.map((track, i) => (
+            <div 
+              key={track.id}
+              onClick={() => playTrackFromList(track, topCharts)}
+              className="group flex items-center gap-4 p-3 rounded-2xl hover:bg-white/[0.04] transition-all cursor-pointer relative overflow-hidden"
+            >
+              <span className="absolute left-[20%] top-1/2 -translate-y-1/2 text-[80px] font-black text-white/[0.03] italic pointer-events-none">{i + 1}</span>
+              <span className="w-6 text-[14px] font-mono font-bold text-[var(--t3)] group-hover:text-white transition-colors z-10">{String(i + 1).padStart(2, '0')}</span>
+              <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 z-10 shadow-lg border border-white/5">
+                <img src={track.cover} className="w-full h-full object-cover" alt="" />
+              </div>
+              <div className="flex-1 min-w-0 z-10">
+                <h4 className="text-[15px] font-bold text-white truncate group-hover:text-[var(--acc-light)]">{track.title}</h4>
+                <p className="text-[12px] text-[var(--t2)] truncate">{track.artist}</p>
+              </div>
+              <span className="text-[13px] font-mono text-[var(--t3)] group-hover:text-[var(--t2)] z-10 px-4">{formatDuration(track.duration)}</span>
+              <div className="flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={(e) => { e.stopPropagation(); toggleLike(track.id); }} className={`${likedSongs.includes(track.id) ? 'text-[var(--acc-pink)]' : 'text-[var(--t3)]'}`}>
+                  <Heart size={16} fill={likedSongs.includes(track.id) ? 'currentColor' : 'none'} />
+                </button>
+                <TrackMenu track={track} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 6. Artist Spotlight */}
+      <section className="px-5 md:px-8">
+        <div className="relative h-[240px] md:h-[300px] w-full rounded-[40px] overflow-hidden border border-white/5 shadow-2xl group cursor-pointer"
+             onClick={() => playTrackFromList(featured[2], allTracks)}>
+          <img src={featured[2].cover} className="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000" alt="" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050508] via-[#050508]/80 to-transparent" />
+          <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-center max-w-xl">
+             <span className="inline-flex w-fit items-center px-3 py-1 rounded-full bg-[var(--acc)]/20 text-[var(--acc-light)] text-[10px] font-black tracking-widest mb-4">ARTIST SPOTLIGHT</span>
+             <h2 className="text-4xl md:text-5xl font-black text-white mb-2 leading-none">{featured[2].artist}</h2>
+             <p className="text-[var(--t2)] text-sm md:text-base font-medium mb-6">Explore the sounds and stories of today&apos;s most influential musical architect.</p>
+             <div className="flex items-center gap-3">
+               <button className="px-8 py-3 bg-[var(--acc)] text-white rounded-full font-black text-sm active:scale-95 transition-all shadow-[0_0_20px_rgba(124,58,237,0.3)]">Follow Artist</button>
+               <button className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 active:scale-95 transition-all"><Play size={18} fill="currentColor" className="ml-0.5" /></button>
+             </div>
           </div>
-        )}
-      </div>
+        </div>
+      </section>
+
+      {/* 7. New Releases */}
+      <section className="px-5 md:px-8">
+        <div className="flex items-center gap-3 mb-6">
+          <Music2 className="text-[var(--acc-pink)]" size={24} />
+          <h2 className="text-[20px] md:text-[24px] font-black text-white tracking-tight">New Releases This Week</h2>
+        </div>
+        <div className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-1 px-1">
+          {discoverNew.map((track) => (
+            <div 
+              key={track.id} 
+              className="flex-shrink-0 w-[140px] md:w-[180px] group transition-all"
+              onClick={() => playTrackFromList(track, discoverNew)}
+            >
+              <div className="relative aspect-square rounded-[24px] overflow-hidden mb-3 bg-[#111119] border border-white/[0.03] shadow-lg">
+                <img src={track.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-[1px]">
+                   <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-black shadow-2xl scale-75 group-hover:scale-100 transition-all duration-300">
+                      <Play size={20} fill="currentColor" className="ml-1" />
+                   </div>
+                </div>
+              </div>
+              <h3 className="text-[14px] font-bold text-white truncate px-1 group-hover:text-[var(--acc)]">{track.title}</h3>
+              <p className="text-[12px] text-[var(--t2)] truncate px-1">{track.artist}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 10. Popular Genres Grid */}
+      <section className="px-5 md:px-8">
+        <h2 className="text-[22px] font-black text-white tracking-tight mb-8">Popular Genres</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {GENRES.map((genre) => (
+            <div 
+              key={genre.name}
+              className={`relative h-[80px] md:h-[100px] rounded-24px overflow-hidden cursor-pointer group active:scale-[0.97] transition-all`}
+              onClick={() => (window.location.href = '/search')}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${genre.gradient} opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700`} />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-xl md:text-2xl font-black text-white drop-shadow-lg">{genre.name}</span>
+              </div>
+              <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '16px 16px' }} />
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
