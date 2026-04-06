@@ -152,10 +152,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Recently Played */}
+      {/* 3. Trending */}
       <section className="px-5 md:px-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-[20px] md:text-[24px] font-black text-white tracking-tight">Recently Played</h2>
+          <h2 className="text-[20px] md:text-[24px] font-black text-white tracking-tight">Trending</h2>
           <button className="text-[13px] font-bold text-[var(--acc)] hover:underline">See all</button>
         </div>
         <div className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-1 px-1">
