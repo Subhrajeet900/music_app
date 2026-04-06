@@ -9,6 +9,9 @@ import { Sidebar } from '@/components/navigation/Sidebar';
 import { BottomNav } from '@/components/navigation/BottomNav';
 import { TopBar } from '@/components/navigation/TopBar';
 import { BottomPlayerBar } from '@/components/player/BottomPlayerBar';
+import { ListenerButton } from '@/components/listener/ListenerButton';
+import { ListenerModal } from '@/components/listener/ListenerModal';
+
 
 const AUTH_ROUTES = ['/login', '/signup'];
 
@@ -16,6 +19,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isLoggedIn, checkSession } = useAuthStore();
   const [checked, setChecked] = useState(false);
+  const [isListenerOpen, setIsListenerOpen] = useState(false);
 
   useEffect(() => {
     checkSession();
@@ -76,6 +80,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="lg:hidden">
             <BottomNav />
           </div>
+
+          {/* Floating Listener Button */}
+          <ListenerButton onClick={() => setIsListenerOpen(true)} />
+          
+          {/* Listener Full Screen Overlay */}
+          <ListenerModal isOpen={isListenerOpen} onClose={() => setIsListenerOpen(false)} />
         </div>
       </div>
     </>
